@@ -129,7 +129,7 @@ truev_log_poisson <- function(coefZ = .4) {
 #' 
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
-generate_survival_data <- function(n = 500, coefZ = log(2)) {
+generate_survival <- function(n = 500, coefZ = log(2)) {
   
   C <- rnorm(n)
   D <- rnorm(n)

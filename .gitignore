@@ -2,3 +2,4 @@ scratch/*
 .Rhistory
 .Rproj.user/*
 .Rproj.user
+\_targets/*

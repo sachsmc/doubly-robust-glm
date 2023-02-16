@@ -2,6 +2,7 @@ library(targets)
 tar_option_set(packages = c("stdReg", "flexsurv", "survival"))
 
 source("R/data-generation.R")
+source("R/analysis.R")
 
 settings <- function() {
   
@@ -19,9 +20,10 @@ settings <- function() {
 list(
   tar_target(settings, settings()), 
   tar_target(numeric_results, 
-             run_simulation(settings$generation, settings$analyis, settings$coefZ), 
-             pattern = map(settings$generation, settings$analysis, settings$coefZ), 
+             run_simulation(settings$generation, settings$analysis, settings$coefZ), 
+             pattern = map(settings), 
              iteration = "vector"
              )
 )
 
+#tar_make()

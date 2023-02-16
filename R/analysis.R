@@ -6,13 +6,32 @@
 #' @param coefZ numeric value for the regression coefficient
 #'                  
 
-run_simulation <- function(generation, analyis, coefZ) {
+run_simulation <- function(generation, analysis, coefZ) {
+  
+  ## number of simulation replicates
+  
+  B <- 10
+  n <- 400
   
   generate_data <- get(paste0("generate_", generation))
   analyze_data <- get(paste0("analyze_", analysis))
   true_values <- get(paste0("truev_", generation))
   
+  truev <- true_values(coefZ)
+  results <- NULL
+  for(i in 1:B) {
+    
+    datin <- generate_data(n = n, coefZ = coefZ) 
+    res <- tryCatch(analyze_data(datin), error = function(e) data.frame(est = NA, type = "failed"))
+    results <- rbind(results, res)
+    
+  }
   
+  results$setting <- generation
+  results$analysis <- analysis
+  results$true_value <- truev
+  results$coefZ <- coefZ
+  results
   
 }
 
@@ -63,7 +82,12 @@ analyze_ols_weighted_standardized <- function(data) {
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = "gaussian")
   
   fit1$weights <- fit2$weights <- rep(1, nrow(data))
-  v
+  
+  ests <- sapply(list(fit1, fit2), 
+                 \(fit) {
+                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
+                 })
+  
   
   
   data.frame(est = ests, 
