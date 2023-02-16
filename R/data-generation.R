@@ -17,6 +17,13 @@ generate_linear <- function(n = 500, coefZ = 2) {
   
 }
 
+truev_linear <- function(coefZ = 2) {
+  
+  coefZ
+  
+}
+
+
 #' Generate data for a binomial glm with log link
 #' 
 #' @param n Sample size
@@ -35,6 +42,19 @@ generate_log_binomial <- function(n = 500, coefZ = .4) {
   Y <- rbinom(n, 1, meanparm)
   
   data <- data.frame(Y, Z, C, D)
+  
+}
+
+truev_log_binomial <- function(coefZ = .4) {
+  
+  n <- 1e6
+  C <- rnorm(n)
+  D <- rnorm(n)
+  
+  linpred <- exp(-2 + coefZ + .1 * C + .2 * D) - exp(-2 + .1 * C + .2 * D)
+  
+  mean(linpred)
+  
   
 }
 
@@ -60,6 +80,20 @@ generate_logit_binomial <- function(n = 500, coefZ = 2) {
 }
 
 
+truev_logit_binomial <- function(coefZ = .4) {
+  
+  n <- 1e7
+  C <- rnorm(n)
+  D <- rnorm(n)
+  
+  linpred <- plogis(-2 + coefZ + .1 * C + .2 * D) - plogis(-2 + .1 * C + .2 * D)
+  
+  mean(linpred)
+  
+  
+}
+
+
 #' Generate data for a poisson glm with log link
 #' 
 #' @param n Sample size
@@ -81,18 +115,26 @@ generate_log_poisson <- function(n = 500, coefZ = .4) {
   
 }
 
-
+truev_log_poisson <- function(coefZ = .4) {
+  
+  n <- 1e7
+  C <- rnorm(n)
+  D <- rnorm(n)
+  linpred <- exp(-2 + coefZ + 1 * C + 2 * D) - exp(-2 + 1 * C + 2 * D)
+  mean(linpred)
+  
+}
 
 #' Generate data for a survival outcomes
 #' 
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
-generate_data <- function(n = 500, coefZ = log(2)) {
+generate_survival_data <- function(n = 500, coefZ = log(2)) {
   
   C <- rnorm(n)
   D <- rnorm(n)
   Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
-  scale <- exp(loghr.Z * Z + C + D)
+  scale <- exp(coefZ * Z + C + D)
   
   Y.true <- rweibullPH(n, shape = 2, scale = scale)
   Cens <- rweibull(n, 1.4 * (1 / 1.7))
@@ -107,4 +149,21 @@ generate_data <- function(n = 500, coefZ = log(2)) {
   data.frame(Y.obs, D.ind, Z, C, D,Ye.obs,E.ind)
   
 }
+
+
+truev_survival <- function(coefZ = log(2)) {
+
+  n <- 1e7
+  C <- rnorm(n)
+  D <- rnorm(n)
+  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  scale1 <- exp(coefZ * 1 + C + D)
+  scale0 <- exp(C + D)
+  
+  c(weib = mean(pweibullPH(1, shape = 2, scale = scale1, lower.tail = FALSE) - pweibullPH(1, shape = 2, scale = scale0, lower.tail = FALSE)),
+    exp = mean(pexp(1, exp(1 + coefZ + C + D), lower.tail = FALSE) - pexp(1, exp(1 + C + D), lower.tail = FALSE)))
+  
+}
+
+
 
