@@ -8,7 +8,7 @@
 #' @param n sample size in each generation
 #'                  
 
-run_simulation <- function(generation, analysis, coefZ, B = 10, n = 400) {
+run_simulation <- function(generation, analysis, coefZ, B = 5000, n = 4000) {
   
   ## number of simulation replicates
   
@@ -17,6 +17,11 @@ run_simulation <- function(generation, analysis, coefZ, B = 10, n = 400) {
   true_values <- get(paste0("truev_", generation))
   
   truev <- true_values(coefZ)
+  
+  if(generation == "survival") {
+    truev <- if(analysis == "exponential") truev[2] else truev[1]
+  }
+  
   results <- NULL
   for(i in 1:B) {
     
@@ -80,7 +85,7 @@ analyze_ols_weighted_standardized <- function(data) {
   fit1 <- glm(Y ~ Z * C, data = data, weights = W1, family = "gaussian")
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = "gaussian")
   
-  fit1$weights <- fit2$weights <- rep(1, nrow(data))
+  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
   
   ests <- sapply(list(fit1, fit2), 
                  \(fit) {
@@ -129,6 +134,7 @@ analyze_poisson_weighted_standardized <- function(data) {
   fit1 <- glm(Y ~ Z, data = data, weights = W1, family = "poisson")
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = "poisson")
   
+  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
   
   ests <- sapply(list(fit1, fit2), 
                  \(fit) {
@@ -158,6 +164,7 @@ analyze_log_binomial_weighted_standardized <- function(data) {
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, 
               family = binomial(link = "log"), start = c(log(mean(data$Y)), 0, 0, 0))
   
+  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
   
   ests <- sapply(list(fit1, fit2), 
                  \(fit) {
@@ -185,6 +192,7 @@ analyze_logit_binomial_weighted_standardized <- function(data) {
   fit1 <- glm(Y ~ Z, data = data, weights = W1, family = binomial())
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = binomial())
   
+  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
   
   ests <- sapply(list(fit1, fit2), 
                  \(fit) {
@@ -324,6 +332,7 @@ analyze_coxph <- function(data) {
   fit1 <- coxph(Surv(Y.obs, D.ind) ~ Z, data = data, weights = W1, ties = "breslow")
   fit2 <- coxph(Surv(Y.obs, D.ind) ~ Z + C + D, data = data, weights = W2, ties = "breslow")
   
+  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
   
   ests <- sapply(list(fit1, fit2), 
                  \(fit) {

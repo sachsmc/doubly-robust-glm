@@ -1,9 +1,11 @@
 library(targets)
 library(tarchetypes)
-tar_option_set(packages = c("stdReg", "flexsurv", "survival"))
+tar_option_set(packages = c("stdReg", "flexsurv", "survival", "ggplot2", "data.table"), 
+               cue = tar_cue("always"))
 
 source("R/data-generation.R")
 source("R/analysis.R")
+source("R/results-summary.R")
 
 ## add log binomial, linear with binary outcome, poisson with binary outcome
 
@@ -27,6 +29,14 @@ target_runs <- tar_map(settings,
 
 combined_runs <- tar_combine(simulation_results, target_runs[["simulate"]])
 
-c(target_runs, combined_runs)
+plots <- list(
+  tar_target(linear_plot, results_barplot(subset(simulation_results, setting == "linear"))), 
+  tar_target(glm_plot, results_barplot(subset(simulation_results, grepl("binomial|poisson", setting)))),
+  tar_target(survival_plot, results_barplot(subset(simulation_results, setting == "survival")))
+  
+  
+)
+
+c(target_runs, combined_runs, plots)
 
 #tar_make()

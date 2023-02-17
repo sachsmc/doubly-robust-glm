@@ -2,6 +2,7 @@
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
+
 generate_linear <- function(n = 500, coefZ = 2) {
   
   
@@ -145,11 +146,7 @@ generate_log_poisson <- function(n = 500, coefZ = .4) {
 
 truev_log_poisson <- function(coefZ = .4) {
   
-  n <- 1e7
-  C <- rnorm(n)
-  D <- rnorm(n)
-  linpred <- exp(-2 + coefZ + 1 * C + 2 * D) - exp(-2 + 1 * C + 2 * D)
-  mean(linpred)
+ coefZ
   
 }
 

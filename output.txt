@@ -1,0 +1,39 @@
+[31m• start target simulate_linear_ols_weighted_standardized_2
+[39m[31m• start target simulate_survival_exponential_0.6
+• start target simulate_linear_ols_weighted_2
+[39m[31m• start target simulate_survival_survspline_0.6
+[39m[31m• start target simulate_survival_exponential_0
+[39m[31m• start target simulate_logit_binomial_logit_binomial_weighted_standardized_0.4
+[39m[31m• start target simulate_survival_coxph_0.6
+[39m[31m• start target simulate_log_binomial_log_binomial_weighted_standardized_0.2
+[39m[31m• start target simulate_identity_binomial_ols_weighted_standardized_0.2
+[39m[31m• start target simulate_survival_weibullPH_0
+[39m[31m• start target simulate_survival_weibullPH_0.6
+[39m[31m• start target simulate_linear_ols_2
+[39m[31m• start target simulate_log_binomial_poisson_weighted_standardized_0.2
+[39m[31m• start target simulate_log_poisson_poisson_weighted_0.6
+[39m[31m• start target simulate_survival_coxph_0
+[39m[31m• start target simulate_survival_survspline_0
+[39m[31m• built target simulate_linear_ols_2 [24.671 seconds]
+[39m[31m• built target simulate_linear_ols_weighted_2 [2.139 minutes]
+[39m[31m• built target simulate_log_poisson_poisson_weighted_0.6 [3.045 minutes]
+[39m[31m• built target simulate_survival_exponential_0.6 [4.808 minutes]
+[39m[31m• built target simulate_survival_exponential_0 [4.867 minutes]
+[39m[31m• built target simulate_logit_binomial_logit_binomial_weighted_standardized_0.4 [4.931 minutes]
+[39m[31m• built target simulate_identity_binomial_ols_weighted_standardized_0.2 [4.964 minutes]
+[39m[31m• built target simulate_linear_ols_weighted_standardized_2 [5.015 minutes]
+[39m[31m• built target simulate_log_binomial_log_binomial_weighted_standardized_0.2 [5.832 minutes]
+[39m[31m• built target simulate_log_binomial_poisson_weighted_standardized_0.2 [5.939 minutes]
+[39m[31m• built target simulate_survival_coxph_0 [20.317 minutes]
+[39m[31m• built target simulate_survival_coxph_0.6 [20.779 minutes]
+[39m[31m• built target simulate_survival_weibullPH_0.6 [55.484 minutes]
+[39m[31m• built target simulate_survival_weibullPH_0 [55.571 minutes]
+[39m[31m• built target simulate_survival_survspline_0.6 [2.416 hours]
+[39m[31m• built target simulate_survival_survspline_0 [2.425 hours]
+[39m[31m• start target simulation_results
+[39m[31m• built target simulation_results [0.009 seconds]
+[39m[31mMaster: [8732.8s 1.2% CPU]; Worker: [avg 20.8% CPU, max 1195.6 Mb]
+[39m[31m• end pipeline [2.426 hours]
+[39m[31mWarning message:
+4 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
+[39m
