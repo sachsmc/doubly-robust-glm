@@ -14,26 +14,32 @@
 [39m[31m• start target simulate_log_poisson_poisson_weighted_0.6
 [39m[31m• start target simulate_survival_coxph_0
 [39m[31m• start target simulate_survival_survspline_0
-[39m[31m• built target simulate_linear_ols_2 [24.671 seconds]
-[39m[31m• built target simulate_linear_ols_weighted_2 [2.139 minutes]
-[39m[31m• built target simulate_log_poisson_poisson_weighted_0.6 [3.045 minutes]
-[39m[31m• built target simulate_survival_exponential_0.6 [4.808 minutes]
-[39m[31m• built target simulate_survival_exponential_0 [4.867 minutes]
-[39m[31m• built target simulate_logit_binomial_logit_binomial_weighted_standardized_0.4 [4.931 minutes]
-[39m[31m• built target simulate_identity_binomial_ols_weighted_standardized_0.2 [4.964 minutes]
-[39m[31m• built target simulate_linear_ols_weighted_standardized_2 [5.015 minutes]
-[39m[31m• built target simulate_log_binomial_log_binomial_weighted_standardized_0.2 [5.832 minutes]
-[39m[31m• built target simulate_log_binomial_poisson_weighted_standardized_0.2 [5.939 minutes]
-[39m[31m• built target simulate_survival_coxph_0 [20.317 minutes]
-[39m[31m• built target simulate_survival_coxph_0.6 [20.779 minutes]
-[39m[31m• built target simulate_survival_weibullPH_0.6 [55.484 minutes]
-[39m[31m• built target simulate_survival_weibullPH_0 [55.571 minutes]
-[39m[31m• built target simulate_survival_survspline_0.6 [2.416 hours]
-[39m[31m• built target simulate_survival_survspline_0 [2.425 hours]
+[39m[31m• built target simulate_linear_ols_2 [51.411 seconds]
+[39m[31m• built target simulate_linear_ols_weighted_2 [3.926 minutes]
+[39m[31m• built target simulate_log_poisson_poisson_weighted_0.6 [5.95 minutes]
+[39m[31m• built target simulate_survival_exponential_0.6 [7.57 minutes]
+[39m[31m• built target simulate_survival_exponential_0 [7.676 minutes]
+[39m[31m• built target simulate_identity_binomial_ols_weighted_standardized_0.2 [7.875 minutes]
+[39m[31m• built target simulate_logit_binomial_logit_binomial_weighted_standardized_0.4 [8.081 minutes]
+[39m[31m• built target simulate_linear_ols_weighted_standardized_2 [8.09 minutes]
+[39m[31m• built target simulate_log_binomial_log_binomial_weighted_standardized_0.2 [8.744 minutes]
+[39m[31m• built target simulate_log_binomial_poisson_weighted_standardized_0.2 [8.877 minutes]
+[39m[31m• built target simulate_survival_coxph_0 [22.899 minutes]
+[39m[31m• built target simulate_survival_coxph_0.6 [23.64 minutes]
+[39m[31m• built target simulate_survival_weibullPH_0.6 [57.986 minutes]
+[39m[31m• built target simulate_survival_weibullPH_0 [58.103 minutes]
+[39m[31m• built target simulate_survival_survspline_0 [2.401 hours]
+[39m[31m• built target simulate_survival_survspline_0.6 [2.446 hours]
 [39m[31m• start target simulation_results
-[39m[31m• built target simulation_results [0.009 seconds]
-[39m[31mMaster: [8732.8s 1.2% CPU]; Worker: [avg 20.8% CPU, max 1195.6 Mb]
-[39m[31m• end pipeline [2.426 hours]
+[39m[31m• built target simulation_results [0.012 seconds]
+[39m[31m• start target glm_plot
+[39m[31m• start target survival_plot
+[39m[31m• start target linear_plot
+[39m[31m• built target glm_plot [0.144 seconds]
+[39m[31m• built target linear_plot [0.078 seconds]
+[39m[31m• built target survival_plot [0.112 seconds]
+[39m[31mMaster: [8813.1s 1.2% CPU]; Worker: [avg 22.2% CPU, max 1195.9 Mb]
+[39m[31m• end pipeline [2.448 hours]
 [39m[31mWarning message:
 4 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
 [39m
