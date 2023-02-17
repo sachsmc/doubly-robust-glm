@@ -4,14 +4,13 @@
 #' @param analysis ols, ols_weighted, ols_weighted_standardized, 
 #'                  glm_weighted, glm_weighted_standardized, survspline, weibullPH, exponential, or coxph
 #' @param coefZ numeric value for the regression coefficient
+#' @param B number of simulation replicates
+#' @param n sample size in each generation
 #'                  
 
-run_simulation <- function(generation, analysis, coefZ) {
+run_simulation <- function(generation, analysis, coefZ, B = 10, n = 400) {
   
   ## number of simulation replicates
-  
-  B <- 10
-  n <- 400
   
   generate_data <- get(paste0("generate_", generation))
   analyze_data <- get(paste0("analyze_", analysis))
@@ -96,7 +95,7 @@ analyze_ols_weighted_standardized <- function(data) {
 }
 
 
-analyze_glm_weighted <- function(data) {
+analyze_poisson_weighted <- function(data) {
   
   zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
   phat <- predict(zmod1, type = "response")
@@ -115,7 +114,64 @@ analyze_glm_weighted <- function(data) {
   
 }
 
-analyze_glm_weighted_standardized <- function(data) {
+
+analyze_poisson_weighted_standardized <- function(data) {
+  
+  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
+  phat <- predict(zmod1, type = "response")
+  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
+  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
+  
+  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
+  #phatWR <- plogis(-1 + 0.5 * data$C)
+  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
+  
+  fit1 <- glm(Y ~ Z, data = data, weights = W1, family = "poisson")
+  fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = "poisson")
+  
+  
+  ests <- sapply(list(fit1, fit2), 
+                 \(fit) {
+                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
+                 })
+  
+  data.frame(est = ests, 
+             type = c("wrong outcome right weights", "right outcome wrong weights"))
+  
+}
+
+
+analyze_log_binomial_weighted_standardized <- function(data) {
+  
+  #data <- generate_log_binomial()
+  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
+  phat <- predict(zmod1, type = "response")
+  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
+  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
+  
+  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
+  #phatWR <- plogis(-1 + 0.5 * data$C)
+  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
+  
+  fit1 <- glm(Y ~ Z, data = data, weights = W1, family = binomial(link = "log"), 
+              start = c(log(mean(data$Y)), 0))
+  fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, 
+              family = binomial(link = "log"), start = c(log(mean(data$Y)), 0, 0, 0))
+  
+  
+  ests <- sapply(list(fit1, fit2), 
+                 \(fit) {
+                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
+                 })
+  
+  data.frame(est = ests, 
+             type = c("wrong outcome right weights", "right outcome wrong weights"))
+  
+}
+
+
+
+analyze_logit_binomial_weighted_standardized <- function(data) {
   
   zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
   phat <- predict(zmod1, type = "response")

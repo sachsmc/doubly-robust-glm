@@ -13,7 +13,7 @@ generate_linear <- function(n = 500, coefZ = 2) {
   
   Y <- rnorm(n,  linpred, sd = 1)
   
-  data <- data.frame(Y, Z, C, D)
+  data.frame(Y, Z, C, D)
   
 }
 
@@ -41,7 +41,7 @@ generate_log_binomial <- function(n = 500, coefZ = .4) {
   
   Y <- rbinom(n, 1, meanparm)
   
-  data <- data.frame(Y, Z, C, D)
+  data.frame(Y, Z, C, D)
   
 }
 
@@ -57,6 +57,34 @@ truev_log_binomial <- function(coefZ = .4) {
   
   
 }
+
+#' Generate data for a binomial glm with identity link
+#' 
+#' @param n Sample size
+#' @param coefZ Numeric value for the Z coefficient
+
+generate_identity_binomial <- function(n = 500, coefZ = .2) {
+  
+  
+  C <- rnorm(n)
+  D <- rnorm(n)
+  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  
+  linpred <- .3 + coefZ * Z + .05 * C + .02 * D
+  meanparm <- pmax(0, pmin(1, linpred)) # just in case
+  
+  Y <- rbinom(n, 1, meanparm)
+  
+  data.frame(Y, Z, C, D)
+  
+}
+
+truev_identity_binomial <- function(coefZ = .2) {
+  
+ coefZ
+  
+}
+
 
 #' Generate data for a binomial glm with logit link
 #' 
@@ -75,7 +103,7 @@ generate_logit_binomial <- function(n = 500, coefZ = 2) {
   
   Y <- rbinom(n, 1, meanparm)
   
-  data <- data.frame(Y, Z, C, D)
+  data.frame(Y, Z, C, D)
   
 }
 
@@ -111,7 +139,7 @@ generate_log_poisson <- function(n = 500, coefZ = .4) {
   
   Y <- rpois(n, meanparm)
   
-  data <- data.frame(Y, Z, C, D)
+  data.frame(Y, Z, C, D)
   
 }
 

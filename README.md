@@ -13,6 +13,7 @@ You will need a recent version of R, along with the following packages `c("targe
 #### Steps
 
 1. Download the repository
-2. Run the `_targets.R` script
-3. Inspect the results
+2. Source the `_targets.R` script
+3. Run `tar_make()` to run the simulation
+4. Inspect the results
 
