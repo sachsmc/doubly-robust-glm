@@ -25,6 +25,36 @@ truev_linear <- function(coefZ = 2) {
 }
 
 
+generate_linear_interaction <- function(n = 500, coefZ = 2) {
+  
+  
+  C <- rnorm(n)
+  D <- rnorm(n)
+  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  
+  linpred <- -2 + coefZ * Z + .5 * Z * C + 1 * C + 1 * D
+  
+  Y <- rnorm(n,  linpred, sd = 1)
+  
+  data.frame(Y, Z, C, D)
+  
+}
+
+truev_linear_interaction <- function(coefZ = 2) {
+  
+  n <- 1e6
+  C <- rnorm(n)
+  D <- rnorm(n)
+  
+  linpred <-  -2 + coefZ * 1 + .5 * 1 * C + 1 * C + 1 * D - 
+    (-2  + 1 * C + 1 * D)
+  
+  mean(linpred)
+  
+}
+
+
+
 #' Generate data for a binomial glm with log link
 #' 
 #' @param n Sample size
@@ -111,7 +141,7 @@ generate_logit_binomial <- function(n = 500, coefZ = 2) {
 
 truev_logit_binomial <- function(coefZ = .4) {
   
-  n <- 1e7
+  n <- 1e6
   C <- rnorm(n)
   D <- rnorm(n)
   
@@ -146,7 +176,11 @@ generate_log_poisson <- function(n = 500, coefZ = .4) {
 
 truev_log_poisson <- function(coefZ = .4) {
   
- coefZ
+  n <- 1e6
+  C <- rnorm(n)
+  D <- rnorm(n)
+  
+  mean(exp(-2 + coefZ * 1 + 1 * C + 2 * D) - exp(-2  + 1 * C + 2 * D))
   
 }
 
@@ -178,7 +212,7 @@ generate_survival <- function(n = 500, coefZ = log(2)) {
 
 truev_survival <- function(coefZ = log(2)) {
 
-  n <- 1e7
+  n <- 1e6
   C <- rnorm(n)
   D <- rnorm(n)
   Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))

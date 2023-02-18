@@ -8,7 +8,7 @@
 #' @param n sample size in each generation
 #'                  
 
-run_simulation <- function(generation, analysis, coefZ, B = 5000, n = 4000) {
+run_simulation <- function(generation, analysis, coefZ, B = 1000, n = 4000) {
   
   ## number of simulation replicates
   
@@ -61,7 +61,7 @@ analyze_ols_weighted <- function(data) {
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
-  fit1 <- lm(Y ~ Z, data = data, weights = W1)
+  fit1 <- lm(Y ~ Z + C, data = data, weights = W1)
   fit2 <- lm(Y ~ Z + C + D, data = data, weights = W2)
   
   data.frame(est = c(coefficients(fit1)[2], coefficients(fit2)[2]), 
@@ -83,7 +83,7 @@ analyze_ols_weighted_standardized <- function(data) {
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
   fit1 <- glm(Y ~ Z * C, data = data, weights = W1, family = "gaussian")
-  fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = "gaussian")
+  fit2 <- glm(Y ~ Z * C + D, data = data, weights = W2, family = "gaussian")
   
   fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
   
@@ -111,7 +111,7 @@ analyze_poisson_weighted <- function(data) {
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
-  fit1 <- glm(Y ~ Z, data = data, weights = W1, family = "poisson")
+  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = "poisson")
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = "poisson")
   
   data.frame(est = sapply(list(fit1, fit2), \(x) coefficients(x)[2]), 
@@ -131,7 +131,7 @@ analyze_poisson_weighted_standardized <- function(data) {
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
-  fit1 <- glm(Y ~ Z, data = data, weights = W1, family = "poisson")
+  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = "poisson")
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = "poisson")
   
   fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
@@ -159,8 +159,8 @@ analyze_log_binomial_weighted_standardized <- function(data) {
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
-  fit1 <- glm(Y ~ Z, data = data, weights = W1, family = binomial(link = "log"), 
-              start = c(log(mean(data$Y)), 0))
+  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = binomial(link = "log"), 
+              start = c(log(mean(data$Y)), 0, 0))
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, 
               family = binomial(link = "log"), start = c(log(mean(data$Y)), 0, 0, 0))
   
@@ -189,7 +189,7 @@ analyze_logit_binomial_weighted_standardized <- function(data) {
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
-  fit1 <- glm(Y ~ Z, data = data, weights = W1, family = binomial())
+  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = binomial())
   fit2 <- glm(Y ~ Z + C + D, data = data, weights = W2, family = binomial())
   
   fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
@@ -221,9 +221,9 @@ analyze_weibullPH <- function(data) {
             dist = "weibullPH", weights = data$W2, 
             inits = c(2, 1, log(2), 1, 1))
   
-  fit2 <- flexsurvreg(Surv(Y.obs,  D.ind) ~ Z, data = data,
+  fit2 <- flexsurvreg(Surv(Y.obs,  D.ind) ~ Z + C, data = data,
                       dist = "weibullPH", weights = data$W1, 
-                      inits = c(2, 1, log(2)))
+                      inits = c(2, 1, log(2), 1))
   
   
   data1 <- data0 <- data
@@ -237,7 +237,7 @@ analyze_weibullPH <- function(data) {
   })
   
   data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights"))
+             type = c("right outcome wrong weights", "wrong outcome right weights"))
   
   
 }
@@ -255,11 +255,12 @@ analyze_survspline <- function(data) {
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
-  fit1 <- flexsurvspline(Surv(Y.obs,  D.ind) ~ Z+C+D, data = data,
-    scale = "hazard", k = 3, weights = data$W2) 
   
-  fit2 <- flexsurvspline(Surv(Y.obs,  D.ind) ~ Z, data = data,
+  fit1 <- flexsurvspline(Surv(Y.obs,  D.ind) ~ Z + C, data = data,
                          scale = "hazard", k = 3, weights = data$W1) 
+
+  fit2 <- flexsurvspline(Surv(Y.obs,  D.ind) ~ Z+C+D, data = data,
+                         scale = "hazard", k = 3, weights = data$W2) 
   
   data1 <- data0 <- data
   data1$Z <- 1
@@ -290,12 +291,13 @@ analyze_exponential <- function(data) {
   phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
+
+  fit1 <- survreg(Surv(Ye.obs,E.ind) ~ Z + C, data = data,
+                  dist = "exp", weights = data$W1)
   
-  fit1 <- survreg(Surv(Ye.obs,E.ind) ~ Z+C+D, data = data,
+  fit2 <- survreg(Surv(Ye.obs,E.ind) ~ Z+C+D, data = data,
     dist = "exp", weights = data$W2)
   
-  fit2 <- survreg(Surv(Ye.obs,E.ind) ~ Z, data = data,
-                  dist = "exp", weights = data$W1)
   
   data1 <- data0 <- data
   data1$Z <- 1
@@ -329,8 +331,8 @@ analyze_coxph <- function(data) {
   #phatWR <- plogis(-1 + 0.5 * data$C)
   data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
   
-  fit1 <- coxph(Surv(Y.obs, D.ind) ~ Z, data = data, weights = W1, ties = "breslow")
-  fit2 <- coxph(Surv(Y.obs, D.ind) ~ Z + C + D, data = data, weights = W2, ties = "breslow")
+  fit1 <- coxph(Surv(Y.obs, D.ind) ~ Z + C + D, data = data, weights = W2, ties = "breslow")
+  fit2 <- coxph(Surv(Y.obs, D.ind) ~ Z + C, data = data, weights = W1, ties = "breslow")
   
   fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
   
@@ -341,7 +343,7 @@ analyze_coxph <- function(data) {
                  })
   
   data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights"))
+             type = c("right outcome wrong weights", "wrong outcome right weights"))
   
   
 }

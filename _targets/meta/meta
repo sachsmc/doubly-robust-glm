@@ -1,19 +1,20 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-analyze_coxph|function|ac70486dfe16901d|||||||||||||||
-analyze_exponential|function|c5e32e08c2505efa|||||||||||||||
+analyze_coxph|function|55171fecfb4f4c99|||||||||||||||
+analyze_exponential|function|4d3129538287eae7|||||||||||||||
 analyze_glm_weighted|function|182c2322eacf1aff|||||||||||||||
 analyze_glm_weighted_standardized|function|12d6839bffaceeab|||||||||||||||
-analyze_log_binomial_weighted_standardized|function|cfff438093fc6689|||||||||||||||
-analyze_logit_binomial_weighted_standardized|function|2d36dbfa1c3f6812|||||||||||||||
+analyze_log_binomial_weighted_standardized|function|73f91dbc8d4de22b|||||||||||||||
+analyze_logit_binomial_weighted_standardized|function|27ed0665d2cc6171|||||||||||||||
 analyze_ols|function|590ca0a9ed69ed24|||||||||||||||
-analyze_ols_weighted|function|ddf518b946c0751a|||||||||||||||
-analyze_ols_weighted_standardized|function|6472eb8d4e7985db|||||||||||||||
-analyze_poisson_weighted|function|182c2322eacf1aff|||||||||||||||
-analyze_poisson_weighted_standardized|function|b8222fcaac1bbf1b|||||||||||||||
-analyze_survspline|function|fb49331a3a9ad22c|||||||||||||||
-analyze_weibullPH|function|6114c2391b82d24e|||||||||||||||
+analyze_ols_weighted|function|6748fb58e5057392|||||||||||||||
+analyze_ols_weighted_standardized|function|b2798f25d1f8e09d|||||||||||||||
+analyze_poisson_weighted|function|d076b9306c1dd40a|||||||||||||||
+analyze_poisson_weighted_standardized|function|dc5052e18d294da7|||||||||||||||
+analyze_survspline|function|8c83c82f3d01dde4|||||||||||||||
+analyze_weibullPH|function|f0b315e01980073e|||||||||||||||
 generate_identity_binomial|function|928d4c51e4b95ff4|||||||||||||||
 generate_linear|function|b830d92df3d6623d|||||||||||||||
+generate_linear_interaction|function|2a869edca7fac726|||||||||||||||
 generate_log_binomial|function|9b106053d7fecf53|||||||||||||||
 generate_log_poisson|function|e04144d02620d95b|||||||||||||||
 generate_logit_binomial|function|ee507d8c17e07258|||||||||||||||
@@ -35,10 +36,10 @@ numeric_results_cf94188e|branch|cd63dfb583588405|21399fb0e8df790e|d82dacca50701c
 numeric_results_d78a750c|branch|b56de50172541e0c|21399fb0e8df790e|7de1a4571ce40415|726035398||t19404.758414175s|b6099e1bec5fd49f|419|rds|local|vector|numeric_results||0.043||
 numeric_results_f27e3afa|branch|2047d043a770f4e1|21399fb0e8df790e|e95e32bc47eb4adc|1668236272||t19404.7584141933s|659f690e2fa4f91c|449|rds|local|vector|numeric_results||3.307||
 numeric_results_fa57397e|branch|dd648ffa7bbcb30f|21399fb0e8df790e|40a9d53bb9e74719|-547807177||t19404.7584142116s|2197d9a853d67a08|457|rds|local|vector|numeric_results||3.796||
-plots|object|a52c1be2d853b445|||||||||||||||
+plots|object|711024fb708c832c|||||||||||||||
 results_barplot|function|1f3b72d5387b5673|||||||||||||||
-run_simulation|function|2e07793c4d1700c4|||||||||||||||
-settings|object|7c1cc1ebef0bf42e|||||||||||||||
+run_simulation|function|90b01c35ee79e509|||||||||||||||
+settings|object|cb9173e0cbab1ff6|||||||||||||||
 simulate_identity_binomial_ols_weighted_standardized_0.2|stem|5430c2cce84d0681|3f2dc1ca32c8a799|014de8d1a1bf26c7|-1610791971||t19405.7500918839s|30d47cbf4ffdf9b4|78731|rds|local|vector|||472.49||
 simulate_linear_ols_2|stem|5c994c443203284b|dcf09b347fb79199|014de8d1a1bf26c7|-694138657||t19405.7452212211s|51ec9dab121b6777|76444|rds|local|vector|||51.411||
 simulate_linear_ols_weighted_2|stem|58d41bed9d67d3e0|9daa6a8dd24e7daf|014de8d1a1bf26c7|1586261361||t19405.7473473855s|2a0d685c694da5a5|76635|rds|local|vector|||235.58||
@@ -46,6 +47,7 @@ simulate_linear_ols_weighted_standardized_2|stem|1db7aef1e4a73fe7|d73441d39e3124
 simulate_log_binomial_log_binomial_weighted_standardized_0.2|stem|72fb444a668789f4|be01dfaef7e750d5|014de8d1a1bf26c7|-756958093||t19405.7506956878s|25e6ad1bd7650a4d|80259|rds|local|vector|||524.616|noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a|
 simulate_log_binomial_poisson_weighted_standardized_0.2|stem|6e7d583bcfb318d7|4e71ff2cb6313f14|014de8d1a1bf26c7|204724162||t19405.750792861s|222c2ca194f36476|80109|rds|local|vector|||532.61||
 simulate_log_poisson_poisson_weighted_0.6|stem|68814698a40a3e9a|b09f8a3738aaff7c|014de8d1a1bf26c7|1831147070||t19405.7487582525s|c0ad820c0124f436|79177|rds|local|vector|||356.979||
+simulate_log_poisson_poisson_weighted_standardized_0.6|stem|7f0aae652d773d0a|0206afe2e04f6427|05e7148175d3bd9e|1730659349||t19406.6372007144s|0de0dd66aa5b7fd3|1184|rds|local|vector|||5.34||
 simulate_logit_binomial_logit_binomial_weighted_standardized_0.4|stem|3807549a15fe4e80|e48321239361d7c8|014de8d1a1bf26c7|-64068780||t19405.7502343808s|fe3a7b07628d5c28|80174|rds|local|vector|||484.888|noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a|
 simulate_survival_coxph_0|stem|9dea06aaabb79faf|2c4859510bd13dae|014de8d1a1bf26c7|-1424829976||t19405.7605285146s|c7202e222ada3d25|78349|rds|local|vector|||1373.954|Loglik converged before variable  1  coefficient may be infinite.|
 simulate_survival_coxph_0.6|stem|1d604bb9dfd026ce|0ac3a32a935e1cc8|014de8d1a1bf26c7|-1950863285||t19405.7610396796s|6eb9d062ac18bb96|77331|rds|local|vector|||1418.401||
@@ -57,10 +59,11 @@ simulate_survival_weibullPH_0|stem|15d1849714185ebe|14833283cf5acc06|014de8d1a1b
 simulate_survival_weibullPH_0.6|stem|9044c53490d1d660|239425ab16e449d2|014de8d1a1bf26c7|1457933343||t19405.784894453s|f20ad35b7ab9783f|53750|rds|local|vector|||3479.187||
 simulation_results|stem|224786eabf171262|180877dbb28cbc43|1c24045d4353337a|-1874240274||t19405.8465495565s|4877c698e60f0da2|1168400|rds|local|vector|||0.012||
 survival_plot|stem|ed71ec649532b1d8|973ca168acfa2afb|8b76cc3a1d0daeda|-1129171180||t19405.8465726795s|f39be964df1283de|623976|rds|local|vector|||0.112||
-target_runs|object|e1a0a8adc73346d4|||||||||||||||
+target_runs|object|c160723c371dc8e4|||||||||||||||
 truev_identity_binomial|function|13c52d319ba34a06|||||||||||||||
 truev_linear|function|9acc901488bbf8ce|||||||||||||||
+truev_linear_interaction|function|afd94f2a585a14fa|||||||||||||||
 truev_log_binomial|function|c906a58fa86c6d35|||||||||||||||
-truev_log_poisson|function|ab0543b81a84e5c9|||||||||||||||
-truev_logit_binomial|function|30f173a00aa43ff1|||||||||||||||
-truev_survival|function|5c865b7195a24140|||||||||||||||
+truev_log_poisson|function|41670e2c59ad3beb|||||||||||||||
+truev_logit_binomial|function|ae4fa8dee8febfeb|||||||||||||||
+truev_survival|function|737a1955d3e42b02|||||||||||||||

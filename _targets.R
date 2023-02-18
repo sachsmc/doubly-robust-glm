@@ -10,10 +10,10 @@ source("R/results-summary.R")
 ## add log binomial, linear with binary outcome, poisson with binary outcome
 
 settings <-  data.frame(
-    generation = c("linear", "linear", "log_poisson", "linear", 
+    generation = c("linear", "linear", "log_poisson", "linear_interaction", 
                    "log_binomial", "log_binomial", "identity_binomial", "logit_binomial", 
                    "survival", "survival", "survival", "survival", "survival", "survival", "survival", "survival"), 
-    analysis = c("ols", "ols_weighted", "poisson_weighted", "ols_weighted_standardized", 
+    analysis = c("ols", "ols_weighted", "poisson_weighted_standardized", "ols_weighted_standardized", 
                 "log_binomial_weighted_standardized", "poisson_weighted_standardized",
                 "ols_weighted_standardized",
                 "logit_binomial_weighted_standardized", 
