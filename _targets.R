@@ -1,6 +1,6 @@
 library(targets)
 library(tarchetypes)
-tar_option_set(packages = c("stdReg", "ggplot2", "data.table"))
+tar_option_set(packages = c("stdReg", "ggplot2", "data.table", "parallel"))
 
 source("R/data-generation.R")
 source("R/analysis.R")
@@ -27,7 +27,7 @@ combined_runs <- tar_combine(simulation_results, target_runs[["simulate"]])
 
 tables <- list(
   tar_target(linear_summary, results_table(subset(simulation_results, grepl("ols", analysis)))), 
-  tar_target(glm_summary, results_table(subset(simulation_results, grepl("binomial|poisson|inverse\\.gaussian", analysis))))
+  tar_target(glm_summary, results_table(subset(simulation_results, grepl("binomial|poisson|inverse", analysis))))
 )
 
 c(target_runs, combined_runs, tables)

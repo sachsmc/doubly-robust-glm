@@ -8,8 +8,9 @@
 #' @param n sample size in each generation
 #'                  
 
-B <- 10
-n <- 1000
+B <- 1000
+n <- 2000
+cores <- 100
 
 run_simulation <- function(generation, analysis, coefZ) {
   
@@ -25,14 +26,23 @@ run_simulation <- function(generation, analysis, coefZ) {
     truev <- if(analysis == "exponential") truev[2] else truev[1]
   }
   
-  results <- NULL
-  for(i in 1:B) {
+  #results <- NULL
+  #for(i in 1:B) {
+  #  
+  #  datin <- generate_data(coefZ = coefZ) 
+  #  res <- tryCatch(analyze_data(datin), error = function(e) data.frame(est = NA, lowerCL = NA, upperCL = NA, type = "failed"))
+  #  results <- rbind(results, res)
+  #  
+  #}
+  
+  results <- do.call(rbind, mclapply(1:B, \(i) {
     
     datin <- generate_data(coefZ = coefZ) 
-    res <- tryCatch(analyze_data(datin), error = function(e) data.frame(est = NA, lowerCL = NA, upperCL = NA, type = "failed"))
-    results <- rbind(results, res)
+    tryCatch(analyze_data(datin), error = function(e) data.frame(est = NA, lowerCL.acm = NA, 
+                                                                 upperCL.acm = NA, lowerCL.boot = NA, upperCL.boot = NA, 
+                                                                 type = "failed"))
     
-  }
+  }, mc.cores = cores))
   
   results$setting <- generation
   results$analysis <- analysis
@@ -48,8 +58,9 @@ analyze_ols <- function(data) {
   fit1 <- lm(Y ~ Z + C + I(C^2) + D, data = data)
   fit2 <- lm(Y ~ Z + C, data = data)
   data.frame(est = c(coefficients(fit1)[2], coefficients(fit2)[2]), 
-             lowerCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 1]), 
-             upperCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 2]),
+             lowerCL.acm = sapply(list(fit1, fit2),\(x) confint(x)[2, 1]), 
+             upperCL.acm = sapply(list(fit1, fit2),\(x) confint(x)[2, 2]),
+             lowerCL.boot = NA, upperCL.boot = NA,
              type = c("right outcome no weights", "wrong outcome no weights"))
   
 }
@@ -70,8 +81,10 @@ analyze_ols_weighted <- function(data) {
   fit2 <- lm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2)
   
   data.frame(est = c(coefficients(fit1)[2], coefficients(fit2)[2]), 
-             lowerCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 1]), 
-             upperCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 2]),
+             lowerCL.acm = sapply(list(fit1, fit2),\(x) confint(x)[2, 1]), 
+             upperCL.acm = sapply(list(fit1, fit2),\(x) confint(x)[2, 2]),
+             lowerCL.boot = NA, 
+             upperCL.boot = NA,
              type = c("wrong outcome right weights", "right outcome wrong weights"))
   
 }
@@ -169,12 +182,12 @@ analyze_log_binomial_weighted_standardized <- function(data) {
   lmeanY <- log(mean(data$Y))
   
   res <- rbind.data.frame(
-    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log")), 
-            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0)), 
-    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log")), 
-            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0, 0, 0)), 
-    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log")), 
-            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0))
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0)), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0, 0, 0)), 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0, 0, 0), nboot = 1), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0)), 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1)
   )
   res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
   res

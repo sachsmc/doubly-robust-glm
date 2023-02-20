@@ -1,45 +1,30 @@
-[31m• start target simulate_log_poisson_poisson_weighted_standardized_0.6
-[39m[31m• start target simulate_survival_exponential_0.6
-• start target simulate_linear_ols_weighted_2
-• start target simulate_survival_survspline_0.6
-• start target simulate_survival_exponential_0
-[39m[31m• start target simulate_logit_binomial_logit_binomial_weighted_standardized_0.4
-[39m[31m• start target simulate_survival_coxph_0.6
-[39m[31m• start target simulate_log_binomial_log_binomial_weighted_standardized_0.2
-[39m[31m• start target simulate_identity_binomial_ols_weighted_standardized_0.2
-[39m[31m• start target simulate_survival_weibullPH_0
-[39m[31m• start target simulate_survival_weibullPH_0.6
-[39m[31m• start target simulate_linear_interaction_ols_weighted_standardized_2
-[39m[31m• start target simulate_linear_ols_2
-[39m[31m• start target simulate_log_binomial_poisson_weighted_standardized_0.2
-[39m[31m• start target simulate_survival_coxph_0
-[39m[31m• start target simulate_survival_survspline_0
-[39m[31m• built target simulate_linear_ols_2 [8.364 seconds]
-[39m[31m• built target simulate_linear_ols_weighted_2 [29.129 seconds]
-[39m[31m• built target simulate_linear_interaction_ols_weighted_standardized_2 [1.052 minutes]
-[39m[31m• built target simulate_identity_binomial_ols_weighted_standardized_0.2 [1.073 minutes]
-[39m[31m• built target simulate_survival_exponential_0 [1.081 minutes]
-[39m[31m• built target simulate_survival_exponential_0.6 [1.088 minutes]
-[39m[31m• built target simulate_logit_binomial_logit_binomial_weighted_standardized_0.4 [1.112 minutes]
-[39m[31m• built target simulate_log_binomial_log_binomial_weighted_standardized_0.2 [1.234 minutes]
-[39m[31m• built target simulate_log_binomial_poisson_weighted_standardized_0.2 [1.266 minutes]
-[39m[31m• built target simulate_log_poisson_poisson_weighted_standardized_0.6 [1.302 minutes]
-[39m[31m• built target simulate_survival_coxph_0 [4.383 minutes]
-[39m[31m• built target simulate_survival_coxph_0.6 [4.545 minutes]
-[39m[31m• built target simulate_survival_weibullPH_0 [14.018 minutes]
-[39m[31m• built target simulate_survival_weibullPH_0.6 [14.386 minutes]
-[39m[31m• built target simulate_survival_survspline_0 [29.931 minutes]
-[39m[31m• built target simulate_survival_survspline_0.6 [30.315 minutes]
-[39m[31m• start target simulation_results
-[39m[31m• built target simulation_results [0.002 seconds]
-[39m[31m• start target glm_plot
-[39m[31m• start target survival_plot
-[39m[31m• start target linear_plot
-[39m[31m• built target glm_plot [0.056 seconds]
-[39m[31m• built target linear_plot [0.068 seconds]
-[39m[31m• built target survival_plot [0.077 seconds]
-[39m[31mMaster: [1823.6s 1.3% CPU]; Worker: [avg 22.1% CPU, max 550.1 Mb]
-[39m[31m• end pipeline [30.412 minutes]
-[39m[31mWarning message:
-2 targets produced warnings. Run targets::tar_meta(fields = warnings, complete_only = TRUE) for the messages. 
-[39m
+[31m• start target simulate_log_poisson_poisson_weighted_standardized_2
+[39m[31m• built target simulate_log_poisson_poisson_weighted_standardized_2 [16.656 minutes]
+[39m[31m• start target simulate_linear_ols_weighted_2
+[39m[31m• built target simulate_linear_ols_weighted_2 [1.55 seconds]
+[39m[31m• start target simulate_logit_binomial_logit_binomial_weighted_standardized_2
+[39m• built target simulate_logit_binomial_logit_binomial_weighted_standardized_2 [15.79 minutes]
+• start target simulate_logit_binomial_log_binomial_weighted_standardized_20
+• built target simulate_logit_binomial_log_binomial_weighted_standardized_20 [1.82 seconds]
+• start target simulate_inverse_gaussian_inverse_gaussian_weighted_standardized_200
+• built target simulate_inverse_gaussian_inverse_gaussian_weighted_standardized_200 [15.687 minutes]
+• start target simulate_linear_ols_2
+• built target simulate_linear_ols_2 [5.932 seconds]
+• start target simulate_log_poisson_ols_weighted_standardized_1
+• built target simulate_log_poisson_ols_weighted_standardized_1 [13.63 minutes]
+• start target simulate_logit_binomial_ols_weighted_standardized_5
+• built target simulate_logit_binomial_ols_weighted_standardized_5 [13.633 minutes]
+• start target simulation_results
+• built target simulation_results [0.003 seconds]
+• start target linear_summary
+• built target linear_summary [0.06 seconds]
+• start target glm_summary
+• built target glm_summary [0.026 seconds]
+• end pipeline [1.26 hours]
+Warning messages:
+1: <anonymous>: link ‘identity’ not available for ‘binomial’
+ 
+2: <anonymous>: link ‘identity’ not available for ‘binomial’
+ 
+3: <anonymous>: link ‘identity’ not available for ‘binomial’
+ 
