@@ -1,7 +1,6 @@
 library(targets)
 library(tarchetypes)
-tar_option_set(packages = c("stdReg", "ggplot2", "data.table"), 
-               cue = tar_cue("always"))
+tar_option_set(packages = c("stdReg", "ggplot2", "data.table"))
 
 source("R/data-generation.R")
 source("R/analysis.R")
@@ -17,7 +16,7 @@ settings <-  data.frame(
     analysis = c("ols", "ols_weighted", "ols_weighted_standardized", "ols_weighted_standardized", # ols settings
                 "poisson_weighted_standardized", "logit_binomial_weighted_standardized", "inverse_gaussian_weighted_standardized",
                 "log_binomial_weighted_standardized"), 
-    coefZ = c(2, 2, 2, 5, 2,2, 200, 20)
+    coefZ = c(2, 2, 1, 5, 2,2, 200, 20)
   )
   
 target_runs <- tar_map(settings, 

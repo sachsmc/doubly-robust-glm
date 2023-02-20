@@ -8,8 +8,8 @@
 #' @param n sample size in each generation
 #'                  
 
-B <- 200
-n <- 2000
+B <- 10
+n <- 1000
 
 run_simulation <- function(generation, analysis, coefZ) {
   
@@ -28,8 +28,8 @@ run_simulation <- function(generation, analysis, coefZ) {
   results <- NULL
   for(i in 1:B) {
     
-    datin <- generate_data(n = n, coefZ = coefZ) 
-    res <- tryCatch(analyze_data(datin), error = function(e) data.frame(est = NA, type = "failed"))
+    datin <- generate_data(coefZ = coefZ) 
+    res <- tryCatch(analyze_data(datin), error = function(e) data.frame(est = NA, lowerCL = NA, upperCL = NA, type = "failed"))
     results <- rbind(results, res)
     
   }
@@ -48,6 +48,8 @@ analyze_ols <- function(data) {
   fit1 <- lm(Y ~ Z + C + I(C^2) + D, data = data)
   fit2 <- lm(Y ~ Z + C, data = data)
   data.frame(est = c(coefficients(fit1)[2], coefficients(fit2)[2]), 
+             lowerCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 1]), 
+             upperCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 2]),
              type = c("right outcome no weights", "wrong outcome no weights"))
   
 }
@@ -68,116 +70,94 @@ analyze_ols_weighted <- function(data) {
   fit2 <- lm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2)
   
   data.frame(est = c(coefficients(fit1)[2], coefficients(fit2)[2]), 
+             lowerCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 1]), 
+             upperCL = sapply(list(fit1, fit2),\(x) confint(x)[2, 2]),
              type = c("wrong outcome right weights", "right outcome wrong weights"))
   
 }
 
+
+stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL) {
+  
+  rewfit0 <- glm(wfit$formula, family = wfit$family, data = data)
+  phat <- predict(rewfit0, type = "response")
+  data$ww <- data$Z / phat + (1 - data$Z) / (1 - phat)
+  reofit0 <- glm(ofit$formula, family = ofit$family, weights = ww, 
+                 data = data, start = ostart)
+  reofit0$prior.weights <- rep(1, length(reofit0$prior.weights))
+  mainest <- summary(stdGlm(reofit0, data, "Z"), contrast = "difference", reference = 0)$est.table[2, c(1, 3, 4)]
+  
+  bootests <- rep(NA, nboot) 
+  for(i in 1:nboot) {
+    
+    bdata <- data[sample(1:nrow(data), nrow(data), replace = TRUE),]
+    rewfit <- glm(wfit$formula, family = wfit$family, data = bdata, 
+                  start = rewfit0$coefficients, x = FALSE, y = FALSE)
+    phat <- predict(rewfit, type = "response")
+    bdata$ww <- bdata$Z / phat + (1 - bdata$Z) / (1 - phat)
+    reofit <- glm(ofit$formula, family = ofit$family, weights = ww, data = bdata, start = reofit0$coefficients, 
+                  x = FALSE, y = FALSE)
+    
+    reofit$prior.weights <- rep(1, length(reofit$prior.weights))
+    bootests[i] <- summary(stdGlm(reofit, bdata, "Z"), contrast = "difference", reference = 0)$est.table[2, c(1)]
+    
+  }
+  
+  bootci <- quantile(bootests, c(.025, .975))
+  
+  res <- c(mainest, bootci)
+  names(res) <- c("est", "lowerCL.acm", "upperCL.acm", "lowerCL.boot", "upperCL.boot")
+  
+  as.data.frame(as.list(res))
+  
+}
 
 analyze_ols_weighted_standardized <- function(data) {
   
-  
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
-  
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
-  
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = "gaussian")
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2, family = "gaussian")
-  fit3 <- glm(Y ~ Z + C, data = data, weights = W2, family = "gaussian")
-  
-  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
-  
-  ests <- sapply(list(fit1, fit2, fit3), 
-                 \(fit) {
-                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
-                 })
-  
-  
-  
-  data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both"))
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = "gaussian"), 
+                  glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "gaussian"), 
+                  glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = "gaussian"), 
+                  glm(Z ~ C, data = data, family = binomial))
+  )
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
   
 }
 
 
-analyze_poisson_weighted <- function(data) {
-  
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
-  
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
-  
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = "poisson")
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2, family = "poisson")
-  
-  data.frame(est = sapply(list(fit1, fit2), \(x) coefficients(x)[2]), 
-             type = c("wrong outcome right weights", "right outcome wrong weights"))
-  
-}
 
 
 analyze_poisson_weighted_standardized <- function(data) {
   
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
-  
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
-  
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = "poisson")
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2, family = "poisson")
-  fit3 <- glm(Y ~ Z + C, data = data, weights = W2, family = "poisson")
-  
-  
-  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
-  
-  ests <- sapply(list(fit1, fit2, fit3), 
-                 \(fit) {
-                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
-                 })
-  
-  data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both"))
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = "poisson"), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "poisson"), 
+            glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = "poisson"), 
+            glm(Z ~ C, data = data, family = binomial))
+  )
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
   
 }
 
 
 analyze_inverse_gaussian_weighted_standardized <- function(data) {
   
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
-  
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
-  
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = "inverse.gaussian")
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2, family = "inverse.gaussian")
-  fit3 <- glm(Y ~ Z + C, data = data, weights = W2, family = "inverse.gaussian")
-  
-  
-  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
-  
-  ests <- sapply(list(fit1, fit2, fit3), 
-                 \(fit) {
-                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
-                 })
-  
-  data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both"))
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = "inverse.gaussian"), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "inverse.gaussian"), 
+            glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = "inverse.gaussian"), 
+            glm(Z ~ C, data = data, family = binomial))
+  )
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
   
 }
 
@@ -186,61 +166,38 @@ analyze_inverse_gaussian_weighted_standardized <- function(data) {
 
 analyze_log_binomial_weighted_standardized <- function(data) {
   
-  #data <- generate_log_binomial()
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
+  lmeanY <- log(mean(data$Y))
   
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log")), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log")), 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0, 0, 0)), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log")), 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0))
+  )
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
   
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = binomial(link = "log"), 
-              start = c(log(mean(data$Y)), 0, 0))
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2, 
-              family = binomial(link = "log"), start = c(log(mean(data$Y)), 0, 0, 0, 0))
-  
-  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
-  
-  ests <- sapply(list(fit1, fit2), 
-                 \(fit) {
-                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
-                 })
-  
-  data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights"))
-  
+   
 }
 
 
 analyze_identity_binomial_weighted_standardized <- function(data) {
   
-  #data <- generate_identity_binomial(n = 5000)
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
   
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
+  lmeanY <- mean(data$Y)
   
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = binomial(link = "identity"), 
-              start = c(mean(data$Y), 0, 0))
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2, 
-              family = binomial(link = "identity"), start = c(mean(data$Y), 0.1, 0, 0, 0), 
-              maxit = 50)
-  
-  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
-  
-  ests <- sapply(list(fit1, fit2), 
-                 \(fit) {
-                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
-                 })
-  
-  data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights"))
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "identity")), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0.1, 0)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "identity")), 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0.1, 0, 0, 0)), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "identity")), 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0.1, 0))
+  )
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
   
 }
 
@@ -248,56 +205,34 @@ analyze_identity_binomial_weighted_standardized <- function(data) {
 
 analyze_logit_binomial_weighted_standardized <- function(data) {
   
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
-  
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
-  
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = binomial())
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2, family = binomial())
-  fit3 <- glm(Y ~ Z + C, data = data, weights = W2, family = binomial())
-  
-  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
-  
-  ests <- sapply(list(fit1, fit2, fit3), 
-                 \(fit) {
-                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
-                 })
-  
-  data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both"))
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial), 
+            glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial), 
+            glm(Z ~ C, data = data, family = binomial))
+  )
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
   
 }
 
 
 analyze_probit_binomial_weighted_standardized <- function(data) {
   
-  zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
-  phat <- predict(zmod1, type = "response")
-  #phat <- plogis(-1 + 1 * data$C + .4 * data$C^2 - 1 * data$D)
-  data$W1 <- data$Z / phat + (1 - data$Z) / (1 - phat)
   
-  phatWR <- predict(glm(Z ~ C, data= data, family = binomial), type = "response")
-  #phatWR <- plogis(-1 + 0.5 * data$C)
-  data$W2 <- data$Z / phatWR + (1 - data$Z) / (1 - phatWR)
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "probit")), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "probit")), 
+            glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "probit")), 
+            glm(Z ~ C, data = data, family = binomial))
+  )
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
   
-  fit1 <- glm(Y ~ Z + C, data = data, weights = W1, family = binomial(link = "probit"))
-  fit2 <- glm(Y ~ Z + C + I(C^2) + D + D:Z, data = data, weights = W2, family = binomial(link = "probit"))
-  fit3 <- glm(Y ~ Z + C, data = data, weights = W2, family = binomial(link = "probit"))
-  
-  fit1$prior.weights <- fit2$prior.weights <- rep(1, nrow(data))
-  
-  ests <- sapply(list(fit1, fit2, fit3), 
-                 \(fit) {
-                   summary(stdGlm(fit, data, "Z"), contrast = "difference", reference = 0)$est.table[2, 1]
-                 })
-  
-  data.frame(est = ests, 
-             type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both"))
   
 }
 

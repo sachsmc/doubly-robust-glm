@@ -3,11 +3,11 @@
 #' @param coefZ Numeric value for the Z coefficient
 
 
-generate_linear <- function(n = 500, coefZ = 2) {
+generate_linear <- function(coefZ = 2) {
   
   
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
   linpred <- -2 + coefZ * Z + 1 * C + .4 * C^2 + 1.5 * D
@@ -27,7 +27,7 @@ truev_linear <- function(coefZ = 2) {
 generate_inverse_gaussian <- function(coefZ = 200) {
   
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
   linpred <- 50 + coefZ * Z + 4 * C + 10 * C^2 + 5 * D
@@ -48,7 +48,7 @@ generate_inverse_gaussian <- function(coefZ = 200) {
 truev_inverse_gaussian <- function(coefZ = 200) {
   
   C <- rnorm(1e6)
-  D <- rnorm(1e6)
+  D <- rnorm(1e6, mean = 1)
   Z <- rbinom(1e6, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
   linpred1 <- 50 + coefZ * 1 + 4 * C + 10 * C^2 + 5 * D
@@ -65,11 +65,11 @@ truev_inverse_gaussian <- function(coefZ = 200) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_log_binomial <- function(n = 500, coefZ = .4) {
+generate_log_binomial <- function(coefZ = .4) {
   
   
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
   linpred <- -4 + coefZ * Z + .1 * C + .04 * C^2 + .8 * D
@@ -85,7 +85,7 @@ truev_log_binomial <- function(coefZ = .4) {
   
   n <- 1e6
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   
   linpred <- exp(-4 + coefZ  + .1 * C + .04 * C^2 + .8 * D) - 
     exp(-4 + .1 * C + .04 * C^2 + .8 * D)
@@ -100,11 +100,11 @@ truev_log_binomial <- function(coefZ = .4) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_identity_binomial <- function(n = 500, coefZ = .2) {
+generate_identity_binomial <- function(coefZ = .2) {
   
   
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
   linpred <- .3 + coefZ * Z + .02 * C + .005 * C^2 + .08 * D
@@ -128,7 +128,7 @@ truev_identity_binomial <- function(coefZ = .2) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_logit_binomial <- function(n = 500, coefZ = 2) {
+generate_logit_binomial <- function(coefZ = 2) {
   
   
   C <- rnorm(n)
@@ -164,14 +164,14 @@ truev_logit_binomial <- function(coefZ = 2) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_log_poisson <- function(n = 500, coefZ = 1) {
+generate_log_poisson <- function(coefZ = 1) {
   
   
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- -2 + coefZ * Z + .5 * C + .1 * C^2 + 1.4 * D
+  linpred <- 0 + coefZ * Z + .1 * C + .05 * C^2 + .4 * D
   meanparm <- exp(linpred)
   
   Y <- rpois(n, meanparm)
@@ -180,12 +180,12 @@ generate_log_poisson <- function(n = 500, coefZ = 1) {
   
 }
 
-truev_log_poisson <- function(coefZ = .4) {
+truev_log_poisson <- function(coefZ = 1) {
   
   n <- 1e6
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   
-  mean(exp(-2 + coefZ  + .5 * C + .1 * C^2 + 1.4 * D) - exp(-2  + .5 * C + .1 * C^2 + 1.4 * D))
+  mean(exp(0 + coefZ * 1 + .1 * C + .05 * C^2 + .4 * D) - exp(0 + coefZ * 0 + .1 * C + .05 * C^2 + .4 * D))
   
 }

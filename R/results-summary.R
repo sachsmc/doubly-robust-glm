@@ -21,8 +21,10 @@ results_barplot <- function(data) {
 results_table <- function(data) {
   
   data <- data.table(data)
+  data[, in_ci := true_value >= lowerCL & true_value <= upperCL]
   data[type != "failed", .(mean_bias = round(mean(est - true_value),4), 
-                                     sd_bias = sd(est - true_value)), 
+                                     sd_bias = sd(est - true_value), 
+                           cover_pct = 100 * mean(in_ci)), 
                  by = .(setting, analysis, type, true_value)]
   
   
