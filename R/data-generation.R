@@ -8,9 +8,9 @@ generate_linear <- function(n = 500, coefZ = 2) {
   
   C <- rnorm(n)
   D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- -2 + coefZ * Z + 1 * C + 1 * D
+  linpred <- -2 + coefZ * Z + 1 * C + .4 * C^2 + 1.5 * D
   
   Y <- rnorm(n,  linpred, sd = 1)
   
@@ -24,35 +24,40 @@ truev_linear <- function(coefZ = 2) {
   
 }
 
-
-generate_linear_interaction <- function(n = 500, coefZ = 2) {
-  
+generate_inverse_gaussian <- function(coefZ = 200) {
   
   C <- rnorm(n)
   D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- -2 + coefZ * Z + .5 * Z * C + 1 * C + 1 * D
+  linpred <- 50 + coefZ * Z + 4 * C + 10 * C^2 + 5 * D
+  meanparm <- 1/sqrt(linpred)
   
-  Y <- rnorm(n,  linpred, sd = 1)
+  shape <- 2
+  nu2 <- rnorm(n)^2
+  xx <- meanparm + meanparm ^ 2 * nu2 / (2 * shape) - 
+    meanparm / (2 * shape) * sqrt(4 * meanparm * shape * nu2 + meanparm^2 * nu2^2)
+  
+  zz <- runif(n)
+  Y <- ifelse(zz <= meanparm / (meanparm + xx), xx, meanparm^2 / xx)
   
   data.frame(Y, Z, C, D)
   
 }
 
-truev_linear_interaction <- function(coefZ = 2) {
+truev_inverse_gaussian <- function(coefZ = 200) {
   
-  n <- 1e6
-  C <- rnorm(n)
-  D <- rnorm(n)
+  C <- rnorm(1e6)
+  D <- rnorm(1e6)
+  Z <- rbinom(1e6, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <-  -2 + coefZ * 1 + .5 * 1 * C + 1 * C + 1 * D - 
-    (-2  + 1 * C + 1 * D)
+  linpred1 <- 50 + coefZ * 1 + 4 * C + 10 * C^2 + 5 * D
+  linpred0 <- 50 + coefZ * 0 + 4 * C + 10 * C^2 + 5 * D
   
-  mean(linpred)
+  mean(1/sqrt(linpred1) - 1/sqrt(linpred0))
+  
   
 }
-
 
 
 #' Generate data for a binomial glm with log link
@@ -65,10 +70,10 @@ generate_log_binomial <- function(n = 500, coefZ = .4) {
   
   C <- rnorm(n)
   D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- -2 + coefZ * Z + .1 * C + .2 * D
-  meanparm <- exp(linpred)
+  linpred <- -4 + coefZ * Z + .1 * C + .04 * C^2 + .8 * D
+  meanparm <- pmin(1, exp(linpred)) # just in case
   
   Y <- rbinom(n, 1, meanparm)
   
@@ -82,7 +87,8 @@ truev_log_binomial <- function(coefZ = .4) {
   C <- rnorm(n)
   D <- rnorm(n)
   
-  linpred <- exp(-2 + coefZ + .1 * C + .2 * D) - exp(-2 + .1 * C + .2 * D)
+  linpred <- exp(-4 + coefZ  + .1 * C + .04 * C^2 + .8 * D) - 
+    exp(-4 + .1 * C + .04 * C^2 + .8 * D)
   
   mean(linpred)
   
@@ -99,9 +105,9 @@ generate_identity_binomial <- function(n = 500, coefZ = .2) {
   
   C <- rnorm(n)
   D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- .3 + coefZ * Z + .05 * C + .02 * D
+  linpred <- .3 + coefZ * Z + .02 * C + .005 * C^2 + .08 * D
   meanparm <- pmax(0, pmin(1, linpred)) # just in case
   
   Y <- rbinom(n, 1, meanparm)
@@ -126,10 +132,10 @@ generate_logit_binomial <- function(n = 500, coefZ = 2) {
   
   
   C <- rnorm(n)
-  D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  D <- rnorm(n, mean = 1)
+  Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- -2 + coefZ * Z + 1 * C + 1 * D
+  linpred <- -2 + coefZ * Z + 1 * C + 4 * D + 1 * D * Z
   meanparm <- plogis(linpred)
   
   Y <- rbinom(n, 1, meanparm)
@@ -139,13 +145,13 @@ generate_logit_binomial <- function(n = 500, coefZ = 2) {
 }
 
 
-truev_logit_binomial <- function(coefZ = .4) {
+truev_logit_binomial <- function(coefZ = 2) {
   
   n <- 1e6
   C <- rnorm(n)
-  D <- rnorm(n)
+  D <- rnorm(n, mean = 1)
   
-  linpred <- plogis(-2 + coefZ + .1 * C + .2 * D) - plogis(-2 + .1 * C + .2 * D)
+  linpred <- plogis(-2 + coefZ + 1 * C + 4 * D + D) - plogis(-2 + 1 * C + 4 * D)
   
   mean(linpred)
   
@@ -158,14 +164,14 @@ truev_logit_binomial <- function(coefZ = .4) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_log_poisson <- function(n = 500, coefZ = .4) {
+generate_log_poisson <- function(n = 500, coefZ = 1) {
   
   
   C <- rnorm(n)
   D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
+  Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- -2 + coefZ * Z + 1 * C + 2 * D
+  linpred <- -2 + coefZ * Z + .5 * C + .1 * C^2 + 1.4 * D
   meanparm <- exp(linpred)
   
   Y <- rpois(n, meanparm)
@@ -180,49 +186,6 @@ truev_log_poisson <- function(coefZ = .4) {
   C <- rnorm(n)
   D <- rnorm(n)
   
-  mean(exp(-2 + coefZ * 1 + 1 * C + 2 * D) - exp(-2  + 1 * C + 2 * D))
+  mean(exp(-2 + coefZ  + .5 * C + .1 * C^2 + 1.4 * D) - exp(-2  + .5 * C + .1 * C^2 + 1.4 * D))
   
 }
-
-#' Generate data for a survival outcomes
-#' 
-#' @param n Sample size
-#' @param coefZ Numeric value for the Z coefficient
-generate_survival <- function(n = 500, coefZ = log(2)) {
-  
-  C <- rnorm(n)
-  D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
-  scale <- exp(coefZ * Z + C + D)
-  
-  Y.true <- rweibullPH(n, shape = 2, scale = scale)
-  Cens <- rweibull(n, 1.4 * (1 / 1.7))
-  
-  
-  E<-rexp(n, exp(1+coefZ * Z + C + D))
-  
-  Y.obs <- pmin(Y.true, Cens)
-  D.ind <- 1.0 * (Y.true <= Cens)
-  Ye.obs<-pmin(E, Cens)
-  E.ind<-1.0 * (E <= Cens)
-  data.frame(Y.obs, D.ind, Z, C, D,Ye.obs,E.ind)
-  
-}
-
-
-truev_survival <- function(coefZ = log(2)) {
-
-  n <- 1e6
-  C <- rnorm(n)
-  D <- rnorm(n)
-  Z <- rbinom(n, 1, prob = plogis(-1 + 1 * C + .4 * C^2 - 1 * D))
-  scale1 <- exp(coefZ * 1 + C + D)
-  scale0 <- exp(C + D)
-  
-  c(weib = mean(pweibullPH(1, shape = 2, scale = scale1, lower.tail = FALSE) - pweibullPH(1, shape = 2, scale = scale0, lower.tail = FALSE)),
-    exp = mean(pexp(1, exp(1 + coefZ + C + D), lower.tail = FALSE) - pexp(1, exp(1 + C + D), lower.tail = FALSE)))
-  
-}
-
-
-

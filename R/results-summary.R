@@ -11,8 +11,19 @@ results_barplot <- function(data) {
                ymax = mean_bias + sd_bias, color = type)) + 
       geom_hline(yintercept = 0, linetype = 2) + 
     geom_crossbar(position = position_dodge(width = 1)) + 
-      facet_wrap(~ analysis, scales = "free") + theme_bw() + 
+      facet_wrap(~ setting + analysis, scales = "free") + theme_bw() + 
     theme(legend.position = "bottom") + 
       labs(x = "True value", y = "Bias (mean +/- 1 std. dev.)", color = "Model: ")
 
+}
+
+
+results_table <- function(data) {
+  
+  data <- data.table(data)
+  data[type != "failed", .(mean_bias = round(mean(est - true_value),4), 
+                                     sd_bias = sd(est - true_value)), 
+                 by = .(setting, analysis, type, true_value)]
+  
+  
 }
