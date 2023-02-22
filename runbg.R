@@ -10,6 +10,8 @@ tar_read(glm_summary)
  library(gt)
 library(data.table)
 # 
+library(ggplot2)
+library(ggExtra)
 
 test <- tar_read(linear_summary)
 
@@ -33,3 +35,30 @@ gt(teset, groupname_col = "setting") |>
    fmt_number(columns = starts_with("cover"), decimals = 1) |> 
    as_latex() |> cat()
  
+ 
+testlin <- tar_read(simulate_linear_linear_compare_2)
+testlogit <- tar_read(simulate_logit_binomial_logit_compare_5)
+
+ggplot(rbind(testlin, testlogit[, colnames(testlin)]), aes(x = est.adhoc, y = est.funk)) + geom_point(alpha = .1) + 
+  geom_hline(aes(yintercept = true_value), linetype = 2) + 
+  geom_vline(aes(xintercept = true_value), linetype = 2) + 
+  facet_wrap(setting ~ type, scales = "free") + theme_bw() + geom_rug(alpha = .1)+ 
+  labs(x = "GLM", y = "Funk")
+ggsave("funk-compare.pdf", width = 6.5, height = 13 / 3)
+
+tcomp <-cbind(by(testlin$est.adhoc  , testlin$type, sd),
+by(testlin$est.funk   , testlin$type, sd),
+by(testlogit$est.adhoc, testlogit$type, sd),
+by(testlogit$est.funk , testlogit$type, sd))
+
+colnames(tcomp) <- c("GLM.linear", "Funk.linear", "GLM.logit", "Funk.logit")
+
+xtable(tcomp, digits = 3)
+
+ggplot(testlogit, aes(x = est.adhoc, y = est.wtd)) + geom_point() + 
+  geom_hline(aes(yintercept = true_value), linetype = 2) + 
+  geom_vline(aes(xintercept = true_value), linetype = 2) + 
+  facet_wrap(~ type) + theme_bw() + geom_rug()
+
+
+testlogit[,c(1, 3, 4,5)] |> plot()

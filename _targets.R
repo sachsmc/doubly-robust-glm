@@ -11,12 +11,14 @@ source("R/results-summary.R")
 settings <-  data.frame(
     generation = c("linear", "linear", "log_poisson", "logit_binomial", ## ols settings
                    "log_poisson", "logit_binomial", "inverse_gaussian", ## glm canon settings
-                   "logit_binomial" ## non canon setting
+                   "logit_binomial",  ## non canon setting
+                   "linear", "logit_binomial" ## funk comparison
                    ), 
     analysis = c("ols", "ols_weighted", "ols_weighted_standardized", "ols_weighted_standardized", # ols settings
                 "poisson_weighted_standardized", "logit_binomial_weighted_standardized", "inverse_gaussian_weighted_standardized",
-                "log_binomial_weighted_standardized"), 
-    coefZ = c(2, 2, 1, 5, 2,2, 200, 20)
+                "log_binomial_weighted_standardized", 
+                "linear_compare", "logit_compare"), 
+    coefZ = c(2, 2, 1, 5, 2,2, 200, 20, 2, 5)
   )
   
 target_runs <- tar_map(settings, 

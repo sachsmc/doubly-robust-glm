@@ -3,20 +3,24 @@ analyze_coxph|function|9a7b0f566df994af|||||||||||||||
 analyze_exponential|function|4d3129538287eae7|||||||||||||||
 analyze_glm_weighted|function|182c2322eacf1aff|||||||||||||||
 analyze_glm_weighted_standardized|function|12d6839bffaceeab|||||||||||||||
-analyze_identity_binomial_weighted_standardized|function|772afb6dfc729eac|||||||||||||||
-analyze_inverse_gaussian_weighted_standardized|function|52157e315ff9ff13|||||||||||||||
-analyze_log_binomial_weighted_standardized|function|6e197c770b51be31|||||||||||||||
-analyze_logit_binomial_weighted_standardized|function|49ea7df393dfd6bd|||||||||||||||
+analyze_identity_binomial_weighted_standardized|function|cf84dab7ad5d4174|||||||||||||||
+analyze_inverse_gaussian_weighted_standardized|function|792bd7881a37d752|||||||||||||||
+analyze_linear_compare|function|47cb3bbd580db4fe|||||||||||||||
+analyze_log_binomial_weighted_standardized|function|b09d7933a42c283c|||||||||||||||
+analyze_logistic_compare|function|ba4b97ba719d7a92|||||||||||||||
+analyze_logit_binomial_weighted_standardized|function|7ac0a6ef5028a5c1|||||||||||||||
+analyze_logit_compare|function|1411e6ce8b39c7dd|||||||||||||||
 analyze_ols|function|f94ceb4d7d8f839a|||||||||||||||
 analyze_ols_weighted|function|accd57de5fd3b498|||||||||||||||
-analyze_ols_weighted_standardized|function|946e1a9537a9cdeb|||||||||||||||
+analyze_ols_weighted_standardized|function|ffc6074806e147a4|||||||||||||||
 analyze_poisson_weighted|function|eca425a66b73232f|||||||||||||||
-analyze_poisson_weighted_standardized|function|48b1b2cbc744c192|||||||||||||||
-analyze_probit_binomial_weighted_standardized|function|6b301f4964b49e0d|||||||||||||||
+analyze_poisson_weighted_standardized|function|7180c5585afc6a3c|||||||||||||||
+analyze_probit_binomial_weighted_standardized|function|d7d70fde3ffb428f|||||||||||||||
 analyze_survspline|function|8c83c82f3d01dde4|||||||||||||||
 analyze_weibullPH|function|f0b315e01980073e|||||||||||||||
 B|object|42b194eec038fae9|||||||||||||||
 cores|object|887021b347b02e8f|||||||||||||||
+funk_estimate|function|ea58526134bd86ba|||||||||||||||
 generate_identity_binomial|function|59238359a4da7773|||||||||||||||
 generate_inverse_gaussian|function|3b802ca68dceba89|||||||||||||||
 generate_linear|function|29a921a563148696|||||||||||||||
@@ -27,9 +31,9 @@ generate_logit_binomial|function|0cc2a71a4b0b37fc|||||||||||||||
 generate_survival|function|0815547ca8f10627|||||||||||||||
 generate_survival_data|function|21eab00fcf1de8b4|||||||||||||||
 glm_plot|stem|0cf25420fba55623|64e285c1ef95b148|cafe37341352d923|-859919816||t19406.930570717s|0783a823d4e96145|108072|rds|local|vector|||0.08||
-glm_summary|stem|87e1b05b043b0413|0d8c62e605a322d6|8ce286fcf294761e|-668286844||t19408.7741343791s|72687070e44f8593|706|rds|local|vector|||0.019||
+glm_summary|stem|87e1b05b043b0413|0d8c62e605a322d6|e62d3744f435caf8|-668286844||t19409.2964268251s|72687070e44f8593|706|rds|local|vector|||0.035||
 linear_plot|stem|79b7186d11776b6f|f1bb81e7d57a5a14|cafe37341352d923|94008705||t19406.9305742033s|908c8eb0ad7fb60c|76062|rds|local|vector|||0.02||
-linear_summary|stem|9c94e049ab000e1c|cfa62c00297a838c|8ce286fcf294761e|-345827076||t19408.7741341013s|560c0e779dd8b526|642|rds|local|vector|||0.037||
+linear_summary|stem|9c94e049ab000e1c|cfa62c00297a838c|e62d3744f435caf8|-345827076||t19409.2964263158s|560c0e779dd8b526|642|rds|local|vector|||0.038||
 n|object|758147688a24b6e0|||||||||||||||
 numeric_results|pattern|223a266ba2599e4d|21399fb0e8df790e||-312175968||||5726|rds|local|vector||numeric_results_d78a750c*numeric_results_a9c684ca*numeric_results_0f2360df*numeric_results_bcfca565*numeric_results_32c5e87f*numeric_results_2b2a2e7d*numeric_results_cf94188e*numeric_results_c79106ac*numeric_results_3944e6fe*numeric_results_fa57397e*numeric_results_c1b6c8ed*numeric_results_1237a433*numeric_results_f27e3afa|35.487||
 numeric_results_0f2360df|branch|69dec7c9ede736dc|21399fb0e8df790e|23046219bddfc3d4|-399079063||t19404.7584139384s|1c0ad539cb0fc235|451|rds|local|vector|numeric_results||1.819||
@@ -49,11 +53,12 @@ plots|object|7300de8bde381a8b|||||||||||||||
 results_barplot|function|9c05a548e18dd9e9|||||||||||||||
 results_table|function|04ea7779841253cd|||||||||||||||
 run_simulation|function|a54a434952ec971b|||||||||||||||
-settings|object|061e2ffb8e4dd412|||||||||||||||
+settings|object|34891fc805a91288|||||||||||||||
 simulate_identity_binomial_identity_binomial_weighted_standardized_0.2|stem|3ff2272294c87a9f|cb05919fe539fe27|b539b8616b79fc7e|2035671262||t19406.9301454654s|01f25a9c167f80a4|3640|rds|local|vector|||17.14|noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. step size truncated out of bounds. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. step size truncated due to divergence. step size truncated out of bounds. step size truncated out of bounds. noninteger successes in a binomial glm. noninteger successes in a binomial glm. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds. step size truncated out of bounds|
 simulate_identity_binomial_ols_weighted_standardized_0.2|stem|51a6d63fa4559c3c|3f2dc1ca32c8a799|b539b8616b79fc7e|-1610791971||t19406.9294730225s|bf100c94084bf8e0|5235|rds|local|vector|||12.94||
 simulate_inverse_gaussian_inverse_gaussian_weighted_standardized_200|stem|f46833b477b2ae2a|2d9ee7e2bd91e808|26e1247268132051|432644542||t19408.7492807279s|55c662114a18e484|111132|rds|local|vector|||941.199||
 simulate_linear_interaction_ols_weighted_standardized_2|stem|331a9ba18b275977|c10dcbb6f13ef998|9370eef1d9e50948|-629481005||t19406.7014799405s|95cb2f4c1ebe29e2|16341|rds|local|vector|||63.106||
+simulate_linear_linear_compare_2|stem|f226b326ff9c64eb|37adaf9618855f18|26e1247268132051|-240270115||t19409.2956793542s|9cf2e9f7faf5dfb9|68643|rds|local|vector|||54.68||
 simulate_linear_ols_2|stem|f4e395fe02aac51d|dcf09b347fb79199|26e1247268132051|-694138657||t19408.7492807279s|0c5856e488bba5f5|45733|rds|local|vector|||5.932||
 simulate_linear_ols_weighted_2|stem|c5edec58e94f2e88|9daa6a8dd24e7daf|26e1247268132051|1586261361||t19408.7492807279s|7ed1c521851a670c|45341|rds|local|vector|||1.55||
 simulate_linear_ols_weighted_standardized_2|stem|1db7aef1e4a73fe7|d73441d39e31245d|014de8d1a1bf26c7|468692052||t19405.7502385286s|a0a609d158514bcf|77028|rds|local|vector|||485.4||
@@ -75,6 +80,7 @@ simulate_logit_binomial_logit_binomial_weighted_standardized_.20|stem|7beedcb9ed
 simulate_logit_binomial_logit_binomial_weighted_standardized_0.4|stem|533e410e50f2ca43|e48321239361d7c8|9370eef1d9e50948|-64068780||t19406.7015205787s|dae008a7883aad66|16759|rds|local|vector|||66.735|noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a binomial glm. noninteger successes in a|
 simulate_logit_binomial_logit_binomial_weighted_standardized_2|stem|6bee7b86d2ad3cf4|79c5b07783c5e96c|26e1247268132051|578213703||t19408.7492809593s|4e1e7769024b546f|114193|rds|local|vector|||947.393||
 simulate_logit_binomial_logit_binomial_weighted_standardized_20|stem|50281d2618cef1fa|4bc34c39a1ae2189|b539b8616b79fc7e|-2034524211||t19407.5518167108s|826b23fb744f06f7|3574|rds|local|vector|||12.81|noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger successes in a binomial glm. noninteger successes in a binomial glm. glm.fit fitted probabilities numerically 0 or 1 occurred. noninteger succe|
+simulate_logit_binomial_logit_compare_5|stem|ed96f5227108a659|3cbd863693cffeb9|26e1247268132051|194296005||t19409.2964246491s|62020ed46dd3206e|90456|rds|local|vector|||64.37||
 simulate_logit_binomial_ols_weighted_standardized_.20|stem|fb916eec152c2705|de42382ccc147b4a|9ac3ca7773d965db|-1848299541||t19407.5606391253s|f05bd7889231a923|5161|rds|local|vector|||22.61||
 simulate_logit_binomial_ols_weighted_standardized_2|stem|48fca5c959e383ca|f9308914554fe079|b539b8616b79fc7e|-1427948669||t19406.9305678782s|bf100c94084bf8e0|5235|rds|local|vector|||15.31||
 simulate_logit_binomial_ols_weighted_standardized_20|stem|319318fed05b5a66|1fbd9fba5cb344ce|b539b8616b79fc7e|1423556497||t19407.5519128539s|a337de47890165b2|5182|rds|local|vector|||8.28||
@@ -97,12 +103,12 @@ simulate_survival_survspline_1|stem|b834ab7b525b4280|d09a526b4452585d|b539b8616b
 simulate_survival_weibullPH_0|stem|daa6075462302d8e|14833283cf5acc06|b539b8616b79fc7e|770244758||t19406.9036252274s|f1fe2878fbf4bdd1|764|rds|local|vector|||106.59||
 simulate_survival_weibullPH_0.6|stem|c5dca9cc259559bf|239425ab16e449d2|9370eef1d9e50948|1457933343||t19406.7107404094s|214dd466c725c3a0|15346|rds|local|vector|||863.172||
 simulate_survival_weibullPH_1|stem|667b00cce698b71c|c218107e23b84ca5|b539b8616b79fc7e|1059300107||t19406.9049393823s|ee6580ad7f5582f1|1671|rds|local|vector|||113.5||
-simulation_results|stem|200f216ba4436620|97605a1f72863bbb|fd046455ba6fc893|-1874240274||t19408.7741335457s|c49dec9018ca6f32|761363|rds|local|vector|||0.002||
-stdGlm2|function|154baf6fa5db263d|||||||||||||||
+simulation_results|stem|95bb4ad4d8a3fb4e|0786166788532012|c641d3a325b3c631|-1874240274||t19409.2964258066s|4aa622567b34d48f|924316|rds|local|vector|||0.003||
+stdGlm2|function|90b6683df7e96855|||||||||||||||
 summary_table|stem|14c97a9ac72efeb3|64bd0f432609d30a|4afee77daf9cd4ac|782889970||t19406.9305715196s|fce1500f3bf36ccf|840|rds|local|vector|||0.02||
 survival_plot|stem|8b056363aa1be310|973ca168acfa2afb|a817d2718e6cc96b|-1129171180||t19406.9305727408s|d71ca179f31f6965|67794|rds|local|vector|||0.01||
 tables|object|ec14831f6d986aac|||||||||||||||
-target_runs|object|abc0302cbeb78510|||||||||||||||
+target_runs|object|845b959a5c98a934|||||||||||||||
 truev_identity_binomial|function|13c52d319ba34a06|||||||||||||||
 truev_inverse_gaussian|function|bfc247b15d157cda|||||||||||||||
 truev_linear|function|9acc901488bbf8ce|||||||||||||||

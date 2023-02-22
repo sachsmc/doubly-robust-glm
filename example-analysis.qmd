@@ -1,0 +1,167 @@
+---
+title: Example analysis
+format: 
+    pdf:
+      keep-tex: true
+---
+
+
+
+## Linear model, smoking is the exposure, birthweight in grams the outcome
+```{r}
+#| echo: true
+
+data <- AF::clslowbwt
+head(data)
+## propensity score fit
+
+pwfit <- glm(smoker ~ race * age * lwt + I(age^2) + I(lwt^2), data = data, 
+             family = "binomial")
+phat <- predict(pwfit, type = "response")
+
+data$weight <- data$smoker / phat + (1 - data$smoker) / (1 - phat)
+## outcome model
+
+outfit <- glm(bwt ~ smoker * (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = data, family = "gaussian", weights = weight)
+
+## dummy data, where we set X to 0 and 1
+
+data0 <- data1 <- data
+data0$smoker <- 0
+data1$smoker <- 1
+
+## predicted couterfactuals
+Yhat0 <- predict(outfit, newdata = data0, type = "response")
+Yhat1 <- predict(outfit, newdata = data1, type = "response")
+
+ATEmean <- mean(Yhat1 - Yhat0)
+ATEmean
+```
+
+
+Bootstrap for confidence interval, not echoed
+
+```{r}
+#| echo: false
+#| warning: false
+
+set.seed(230221)
+bootATE <- rep(NA, 1000)
+for(i in 1:length(bootATE)) {
+## sample ids
+  bids <- sample(unique(data$id), length(unique(data$id)), replace= TRUE)
+  datab <- do.call("rbind", 
+              lapply(bids, \(i) data[data$id == i,]))
+
+## propensity score fit
+
+pwfit <- glm(smoker ~ race * age * lwt + I(age^2) + I(lwt^2), data = datab, 
+             family = "binomial")
+phat <- predict(pwfit, type = "response")
+
+datab$weight <- datab$smoker / phat + (1 - datab$smoker) / (1 - phat)
+## outcome model
+
+outfit <- glm(bwt ~ smoker * (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = datab, family = "gaussian", weights = weight)
+
+## dummy data, where we set X to 0 and 1
+
+data0 <- data1 <- datab
+data0$smoker <- 0
+data1$smoker <- 1
+
+## predicted couterfactuals
+Yhat0 <- predict(outfit, newdata = data0, type = "response")
+Yhat1 <- predict(outfit, newdata = data1, type = "response")
+
+bootATE[i] <- mean(Yhat1 - Yhat0)
+
+}
+
+quantile(bootATE, c(.025, .975))
+```
+
+
+
+## Logistic model, smoking is the exposure, low birthweight (birth weight < 2500g) the outcome
+```{r}
+#| echo: true
+
+## propensity score fit
+
+pwfit <- glm(smoker ~ race * age * lwt + I(age^2) + I(lwt^2), data = data, 
+             family = "binomial")
+phat <- predict(pwfit, type = "response")
+
+data$weight <- data$smoker / phat + (1 - data$smoker) / (1 - phat)
+## outcome model
+
+outfit <- glm(lbw ~ smoker * (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = data, family = "binomial", weights = weight)
+
+## dummy data, where we set X to 0 and 1
+
+data0 <- data1 <- data
+data0$smoker <- 0
+data1$smoker <- 1
+
+## predicted couterfactuals
+Yhat0 <- predict(outfit, newdata = data0, type = "response")
+Yhat1 <- predict(outfit, newdata = data1, type = "response")
+
+ATEmean <- mean(Yhat1 - Yhat0)
+ATEmean
+
+RRmean <- mean(Yhat1) / mean(Yhat0)
+RRmean
+```
+
+
+Bootstrap for confidence interval, not echoed
+
+```{r}
+#| echo: false
+#| warning: false
+
+set.seed(230221)
+bootATE <- bootRR <- rep(NA, 1000)
+for(i in 1:length(bootATE)) {
+  
+  bids <- sample(unique(data$id), length(unique(data$id)), replace= TRUE)
+  datab <- do.call("rbind", 
+              lapply(bids, \(i) data[data$id == i,]))
+
+## propensity score fit
+
+pwfit <- glm(smoker ~ race * age * lwt + I(age^2) + I(lwt^2), data = datab, 
+             family = "binomial")
+phat <- predict(pwfit, type = "response")
+
+datab$weight <- datab$smoker / phat + (1 - datab$smoker) / (1 - phat)
+## outcome model
+
+outfit <- glm(lbw ~ smoker * (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = datab, family = "binomial", weights = weight)
+
+## dummy data, where we set X to 0 and 1
+
+data0 <- data1 <- datab
+data0$smoker <- 0
+data1$smoker <- 1
+
+## predicted couterfactuals
+Yhat0 <- predict(outfit, newdata = data0, type = "response")
+Yhat1 <- predict(outfit, newdata = data1, type = "response")
+
+bootATE[i] <- mean(Yhat1 - Yhat0)
+bootRR[i] <- mean(Yhat1) / mean(Yhat0)
+}
+
+quantile(bootATE, c(.025, .975))
+
+quantile(bootRR, c(.025, .975))
+```
+
+
