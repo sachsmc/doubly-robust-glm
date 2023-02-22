@@ -35,8 +35,30 @@ data1$smoker <- 1
 Yhat0 <- predict(outfit, newdata = data0, type = "response")
 Yhat1 <- predict(outfit, newdata = data1, type = "response")
 
-ATEmean <- mean(Yhat1 - Yhat0)
+ATEmean <- mean(Yhat1) - mean(Yhat0)
 ATEmean
+
+## CAN Richard Funk?
+
+## separate outcome models, unweighted
+
+ofit1 <- glm(bwt ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = subset(data, smoker == 1), family = "gaussian")
+
+ofit0 <- glm(bwt ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = subset(data, smoker == 0), family = "gaussian")
+
+
+dr1 <- data$bwt * (data$smoker == 1) / phat - 
+  predict(ofit1, newdata = data1, type = "response") * 
+  ((data$smoker == 1) - phat) / phat
+dr0 <- data$bwt * (data$smoker == 0) / (1 - phat) + 
+  predict(ofit0, newdata = data0, type = "response") * 
+  ((data$smoker == 1) - phat) / (1 - phat)
+
+ATEfunk <- mean(dr1) - mean(dr0)  
+ATEfunk
+
 ```
 
 
@@ -111,11 +133,34 @@ data1$smoker <- 1
 Yhat0 <- predict(outfit, newdata = data0, type = "response")
 Yhat1 <- predict(outfit, newdata = data1, type = "response")
 
-ATEmean <- mean(Yhat1 - Yhat0)
+ATEmean <- mean(Yhat1) - mean(Yhat0)
 ATEmean
 
 RRmean <- mean(Yhat1) / mean(Yhat0)
 RRmean
+
+
+## separate outcome models, unweighted
+
+ofit1 <- glm(lbw ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = subset(data, smoker == 1), family = "binomial")
+
+ofit0 <- glm(lbw ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = subset(data, smoker == 0), family = "binomial")
+
+
+dr1 <- data$lbw * (data$smoker == 1) / phat - 
+  predict(ofit1, newdata = data1, type = "response") * 
+  ((data$smoker == 1) - phat) / phat
+dr0 <- data$lbw * (data$smoker == 0) / (1 - phat) + 
+  predict(ofit0, newdata = data0, type = "response") * 
+  ((data$smoker == 1) - phat) / (1 - phat)
+
+ATEfunk <- mean(dr1) - mean(dr0)  
+RRfunk <- mean(dr1) / mean(dr0)
+ATEfunk
+RRfunk
+
 ```
 
 

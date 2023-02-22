@@ -12,13 +12,15 @@ settings <-  data.frame(
     generation = c("linear", "linear", "log_poisson", "logit_binomial", ## ols settings
                    "log_poisson", "logit_binomial", "inverse_gaussian", ## glm canon settings
                    "logit_binomial",  ## non canon setting
-                   "linear", "logit_binomial" ## funk comparison
+                   "linear", "logit_binomial", ## funk comparison
+                   "linearodd"
                    ), 
     analysis = c("ols", "ols_weighted", "ols_weighted_standardized", "ols_weighted_standardized", # ols settings
                 "poisson_weighted_standardized", "logit_binomial_weighted_standardized", "inverse_gaussian_weighted_standardized",
                 "log_binomial_weighted_standardized", 
-                "linear_compare", "logit_compare"), 
-    coefZ = c(2, 2, 1, 5, 2,2, 200, 20, 2, 5)
+                "linear_compare", "logit_compare", 
+                "ols_weighted_standardized_odd"), 
+    coefZ = c(2, 2, 1, 5, 2,2, 200, 20, 2, 5, 2)
   )
   
 target_runs <- tar_map(settings, 
@@ -28,7 +30,7 @@ target_runs <- tar_map(settings,
 combined_runs <- tar_combine(simulation_results, target_runs[["simulate"]])
 
 tables <- list(
-  tar_target(linear_summary, results_table(subset(simulation_results, grepl("ols", analysis)))), 
+  tar_target(linear_summary, results_table(subset(simulation_results, analysis %in% c("ols", "ols_weighted", "ols_weighted_standardized", "ols_weighted_standardized")))), 
   tar_target(glm_summary, results_table(subset(simulation_results, grepl("binomial|poisson|inverse", analysis))))
 )
 

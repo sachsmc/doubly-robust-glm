@@ -62,3 +62,8 @@ ggplot(testlogit, aes(x = est.adhoc, y = est.wtd)) + geom_point() +
 
 
 testlogit[,c(1, 3, 4,5)] |> plot()
+
+
+chk <- tar_read(simulate_linearodd_ols_weighted_standardized_odd_2)
+by(chk$est, chk$type, mean)                                                           
+                                                                                            

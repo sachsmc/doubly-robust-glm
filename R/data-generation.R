@@ -18,7 +18,32 @@ generate_linear <- function(coefZ = 2) {
   
 }
 
+
+
+
+generate_linearodd <- function(coefZ = 2) {
+  
+  
+  C <- rnorm(n)
+  D <- rbinom(n, 1, .35)
+  Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 20 * C + 1.4 * C^2 + 2 * D)))
+  
+  linpred <- -2 + coefZ * Z + 1 * C + 4.5 * D
+  
+  Y <- rnorm(n,  linpred, sd = 1)
+  
+  data.frame(Y, Z, C, D)
+  
+}
+
 truev_linear <- function(coefZ = 2) {
+  
+  coefZ
+  
+}
+
+
+truev_linearodd <- function(coefZ = 2) {
   
   coefZ
   

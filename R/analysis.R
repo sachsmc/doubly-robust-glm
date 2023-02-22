@@ -10,7 +10,7 @@
 
 B <- 1000
 n <- 2000
-cores <- 100
+cores <- 10
 
 run_simulation <- function(generation, analysis, coefZ) {
   
@@ -139,6 +139,17 @@ analyze_ols_weighted_standardized <- function(data) {
                   glm(Z ~ C, data = data, family = binomial))
   )
   res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res
+  
+}
+
+analyze_ols_weighted_standardized_odd <- function(data) {
+  
+  res <- rbind.data.frame(
+    stdGlm2(data, glm(Y ~ Z + C, data = data, family = "gaussian"), 
+            glm(Z ~ D, data = data, family = binomial), nboot = 1)
+  )
+  res$type <- c("residual confounding test")
   res
   
 }

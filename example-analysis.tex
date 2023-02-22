@@ -188,7 +188,7 @@
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, frame hidden, sharp corners, interior hidden, borderline west={3pt}{0pt}{shadecolor}, enhanced, breakable]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, boxrule=0pt, sharp corners, borderline west={3pt}{0pt}{shadecolor}, breakable, interior hidden, frame hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{linear-model-smoking-is-the-exposure-birthweight-in-grams-the-outcome}{%
 \subsection{Linear model, smoking is the exposure, birthweight in grams
@@ -236,13 +236,42 @@ outcome}\label{linear-model-smoking-is-the-exposure-birthweight-in-grams-the-out
 \NormalTok{Yhat0 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(outfit, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
 \NormalTok{Yhat1 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(outfit, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
 
-\NormalTok{ATEmean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(Yhat1 }\SpecialCharTok{{-}}\NormalTok{ Yhat0)}
+\NormalTok{ATEmean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(Yhat1) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(Yhat0)}
 \NormalTok{ATEmean}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 [1] -223.6736
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# CAN Richard Funk?}
+
+\DocumentationTok{\#\# separate outcome models, unweighted}
+
+\NormalTok{ofit1 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(bwt }\SpecialCharTok{\textasciitilde{}}\NormalTok{ (race }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ lwt) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(lwt}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }
+              \AttributeTok{data =} \FunctionTok{subset}\NormalTok{(data, smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{), }\AttributeTok{family =} \StringTok{"gaussian"}\NormalTok{)}
+
+\NormalTok{ofit0 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(bwt }\SpecialCharTok{\textasciitilde{}}\NormalTok{ (race }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ lwt) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(lwt}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }
+              \AttributeTok{data =} \FunctionTok{subset}\NormalTok{(data, smoker }\SpecialCharTok{==} \DecValTok{0}\NormalTok{), }\AttributeTok{family =} \StringTok{"gaussian"}\NormalTok{)}
+
+
+\NormalTok{dr1 }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{bwt }\SpecialCharTok{*}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ phat }\SpecialCharTok{{-}} 
+  \FunctionTok{predict}\NormalTok{(ofit1, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{) }\SpecialCharTok{*} 
+\NormalTok{  ((data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{/}\NormalTok{ phat}
+\NormalTok{dr0 }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{bwt }\SpecialCharTok{*}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{+} 
+  \FunctionTok{predict}\NormalTok{(ofit0, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{) }\SpecialCharTok{*} 
+\NormalTok{  ((data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat)}
+
+\NormalTok{ATEfunk }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(dr1) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(dr0)  }
+\NormalTok{ATEfunk}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] -225.5489
 \end{verbatim}
 
 Bootstrap for confidence interval, not echoed
@@ -289,7 +318,7 @@ Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 \NormalTok{Yhat0 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(outfit, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
 \NormalTok{Yhat1 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(outfit, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
 
-\NormalTok{ATEmean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(Yhat1 }\SpecialCharTok{{-}}\NormalTok{ Yhat0)}
+\NormalTok{ATEmean }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(Yhat1) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(Yhat0)}
 \NormalTok{ATEmean}
 \end{Highlighting}
 \end{Shaded}
@@ -307,6 +336,44 @@ Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 
 \begin{verbatim}
 [1] 1.478392
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# separate outcome models, unweighted}
+
+\NormalTok{ofit1 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(lbw }\SpecialCharTok{\textasciitilde{}}\NormalTok{ (race }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ lwt) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(lwt}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }
+              \AttributeTok{data =} \FunctionTok{subset}\NormalTok{(data, smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{), }\AttributeTok{family =} \StringTok{"binomial"}\NormalTok{)}
+
+\NormalTok{ofit0 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(lbw }\SpecialCharTok{\textasciitilde{}}\NormalTok{ (race }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ lwt) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(age}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{I}\NormalTok{(lwt}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }
+              \AttributeTok{data =} \FunctionTok{subset}\NormalTok{(data, smoker }\SpecialCharTok{==} \DecValTok{0}\NormalTok{), }\AttributeTok{family =} \StringTok{"binomial"}\NormalTok{)}
+
+
+\NormalTok{dr1 }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{lbw }\SpecialCharTok{*}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ phat }\SpecialCharTok{{-}} 
+  \FunctionTok{predict}\NormalTok{(ofit1, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{) }\SpecialCharTok{*} 
+\NormalTok{  ((data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{/}\NormalTok{ phat}
+\NormalTok{dr0 }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{lbw }\SpecialCharTok{*}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{+} 
+  \FunctionTok{predict}\NormalTok{(ofit0, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{) }\SpecialCharTok{*} 
+\NormalTok{  ((data}\SpecialCharTok{$}\NormalTok{smoker }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat)}
+
+\NormalTok{ATEfunk }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(dr1) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(dr0)  }
+\NormalTok{RRfunk }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(dr1) }\SpecialCharTok{/} \FunctionTok{mean}\NormalTok{(dr0)}
+\NormalTok{ATEfunk}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 0.1372512
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{RRfunk}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 1.488187
 \end{verbatim}
 
 Bootstrap for confidence interval, not echoed
