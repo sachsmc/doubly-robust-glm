@@ -3,7 +3,7 @@
 #' @param coefZ Numeric value for the Z coefficient
 
 
-generate_linear <- function(coefZ = 2) {
+generate_linear <- function(n = 2000,coefZ = 2) {
   
   
   C <- rnorm(n)
@@ -21,7 +21,7 @@ generate_linear <- function(coefZ = 2) {
 
 
 
-generate_linearodd <- function(coefZ = 2) {
+generate_linearodd <- function(n = 2000,coefZ = 2) {
   
   
   C <- rnorm(n)
@@ -49,7 +49,7 @@ truev_linearodd <- function(coefZ = 2) {
   
 }
 
-generate_inverse_gaussian <- function(coefZ = 200) {
+generate_inverse_gaussian <- function(n = 2000,coefZ = 200) {
   
   C <- rnorm(n)
   D <- rnorm(n, mean = 1)
@@ -90,7 +90,7 @@ truev_inverse_gaussian <- function(coefZ = 200) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_log_binomial <- function(coefZ = .4) {
+generate_log_binomial <- function(n = 2000,coefZ = .4) {
   
   
   C <- rnorm(n)
@@ -125,7 +125,7 @@ truev_log_binomial <- function(coefZ = .4) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_identity_binomial <- function(coefZ = .2) {
+generate_identity_binomial <- function(n = 2000,coefZ = .2) {
   
   
   C <- rnorm(n)
@@ -153,7 +153,7 @@ truev_identity_binomial <- function(coefZ = .2) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_logit_binomial <- function(coefZ = 2) {
+generate_logit_binomial <- function(n = 2000,coefZ = 2) {
   
   
   C <- rnorm(n)
@@ -189,7 +189,7 @@ truev_logit_binomial <- function(coefZ = 2) {
 #' @param n Sample size
 #' @param coefZ Numeric value for the Z coefficient
 
-generate_log_poisson <- function(coefZ = 1) {
+generate_log_poisson <- function(n = 2000,coefZ = 1) {
   
   
   C <- rnorm(n)

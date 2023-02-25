@@ -1,30 +1,37 @@
 library(targets)
 library(tarchetypes)
-tar_option_set(packages = c("stdReg", "ggplot2", "data.table", "parallel"))
+tar_option_set(packages = c("stdReg", "ggplot2", "data.table", "parallel", "sandwich"))
 
 source("R/data-generation.R")
 source("R/analysis.R")
 source("R/results-summary.R")
+source("R/variance-estimation.R")
 
 ## add log binomial, linear with binary outcome, poisson with binary outcome
 
 settings <-  data.frame(
-    generation = c("linear", "linear", "log_poisson", "logit_binomial", ## ols settings
+    generation = c("linear", ## ols settings
                    "log_poisson", "logit_binomial", "inverse_gaussian", ## glm canon settings
                    "logit_binomial",  ## non canon setting
                    "linear", "logit_binomial", ## funk comparison
+                   "linear", "logit_binomial", ## funk comparison
+                   "linear", "logit_binomial", ## funk comparison
                    "linearodd"
                    ), 
-    analysis = c("ols", "ols_weighted", "ols_weighted_standardized", "ols_weighted_standardized", # ols settings
+    analysis = c("ols_weighted",  # ols settings
                 "poisson_weighted_standardized", "logit_binomial_weighted_standardized", "inverse_gaussian_weighted_standardized",
                 "log_binomial_weighted_standardized", 
                 "linear_compare", "logit_compare", 
-                "ols_weighted_standardized_odd"), 
-    coefZ = c(2, 2, 1, 5, 2,2, 200, 20, 2, 5, 2)
+                "linear_compare", "logit_compare", 
+                "linear_compare", "logit_compare", 
+                "ols_weighted_standardized_odd"),
+    n = c(rep(2000,5), 1000, 1000, 500,500, 100,100, 2000),
+    coefZ = c(2, 2,2, 200, 20, 2, 5,2,5,2,5, 2)
   )
   
+#settings <- subset(settings, grepl("compare", analysis))
 target_runs <- tar_map(settings, 
-        tar_target(simulate, run_simulation(generation, analysis, coefZ))
+        tar_target(simulate, run_simulation(generation, analysis, coefZ, n))
         )
 
 combined_runs <- tar_combine(simulation_results, target_runs[["simulate"]])
@@ -35,6 +42,8 @@ tables <- list(
 )
 
 c(target_runs, combined_runs, tables)
+#target_runs
+
 
 ## linear regression with no interaction is dr, under any data generating mech including continuous, binary, and poisson, maybe survival with pseudo observations 
 ## canonical link glm is dr, poisson, binomial, and inverse gaussian (add)

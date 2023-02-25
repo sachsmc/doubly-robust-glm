@@ -46,11 +46,19 @@ ggplot(rbind(testlin, testlogit[, colnames(testlin)]), aes(x = est.adhoc, y = es
   labs(x = "GLM", y = "Funk")
 ggsave("funk-compare.pdf", width = 6.5, height = 13 / 3)
 
-tcomp <-cbind(by(testlin$est.adhoc  , testlin$type, sd),
-by(testlin$est.funk   , testlin$type, sd),
-by(testlogit$est.adhoc, testlogit$type, sd),
-by(testlogit$est.funk , testlogit$type, sd))
+cmps <- sort(grep("compare", tar_manifest()$name, value = TRUE))[c(1, 4, 3, 6, 2, 5)]
+res <- NULL
+for(i in c(1, 3, 5)) {
+    x <- subset(tar_read_raw(cmps[i]), type != "failed")
+    x1 <- subset(tar_read_raw(cmps[i + 1]), type != "failed")
+    res <- rbind(res, cbind(
+      by(x$est.adhoc, x$type, sd),
+      by(x$est.funk, x$type, sd),
+      by(x1$est.adhoc, x1$type, sd),
+      by(x1$est.funk, x1$type, sd)))
+  }
 
+tcomp <-res
 colnames(tcomp) <- c("GLM.linear", "Funk.linear", "GLM.logit", "Funk.logit")
 
 xtable(tcomp, digits = 3)
@@ -67,3 +75,20 @@ testlogit[,c(1, 3, 4,5)] |> plot()
 chk <- tar_read(simulate_linearodd_ols_weighted_standardized_odd_2)
 by(chk$est, chk$type, mean)                                                           
                                                                                             
+
+
+test <- tar_read(simulate_linear_ols_weighted_2000_2)
+results_table(test)
+
+
+source("_targets.R")
+torun <- tar_manifest()$name[c(4,9,10,11)]
+
+tar_delete(names = any_of(!!torun))
+tar_make(names = any_of(!!torun))
+
+ares <-do.call(rbind, lapply(torun, \(ne) {
+  res <- tar_read_raw(ne)
+}))
+
+results_table(ares)

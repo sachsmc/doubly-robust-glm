@@ -23,10 +23,13 @@ results_table <- function(data) {
   data <- data.table(data)
   data[, in_ci.acm := true_value >= lowerCL.acm & true_value <= upperCL.acm]
   data[, in_ci.boot := true_value >= lowerCL.boot & true_value <= upperCL.boot]
+  data[, in_ci.infl := true_value >= lowerCL.infl & true_value <= upperCL.infl]
   data[type != "failed", .(mean_bias = round(mean(est - true_value),4), 
                                      sd_bias = sd(est - true_value), 
                            cover_pct.acm = 100 * mean(in_ci.acm), 
-                           cover_pct.boot = 100 * mean(in_ci.boot)), 
+                           cover_pct.boot = 100 * mean(in_ci.boot),
+                           cover_pct.infl = 100 * mean(in_ci.infl)
+                           ), 
                  by = .(setting, analysis, type, true_value)]
   
   
