@@ -8,9 +8,6 @@
 #' @param n sample size in each generation
 #'                  
 
-B <- 1000
-#n <- 2000
-cores <- 10
 
 run_simulation <- function(generation, analysis, coefZ, n = 2000) {
   
@@ -49,6 +46,7 @@ run_simulation <- function(generation, analysis, coefZ, n = 2000) {
   results$analysis <- analysis
   results$true_value <- truev
   results$coefZ <- coefZ
+  results$sampsize <- n
   results
   
 }
@@ -67,7 +65,7 @@ analyze_ols <- function(data) {
   
 }
 
-analyze_ols_weighted <- function(data, nboot = 1) {
+analyze_ols_weighted <- function(data, nboot = 1000) {
   
   
   zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
@@ -121,7 +119,7 @@ analyze_ols_weighted <- function(data, nboot = 1) {
 }
 
 
-stdGlm2 <- function(data, ofit, wfit, nboot = 1, ostart = NULL, noweights = TRUE) {
+stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = TRUE) {
   
   rewfit0 <- glm(wfit$formula, family = wfit$family, data = data)
   phat <- predict(rewfit0, type = "response")
@@ -384,7 +382,8 @@ analyze_logit_compare <- function(data) {
     stdGlm2(data, wofit, wwfit, nboot = 1)
   )
   res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
-  res$lowerCL.acm <- res$upperCL.acm <- res$lowerCL.boot <- res$upperCL.boot <- NULL
+  res$lowerCL.acm <- res$upperCL.acm <- res$lowerCL.boot <- res$upperCL.boot <- 
+    res$lowerCL.infl <- res$upperCL.infl <- NULL
   colnames(res)[1] <- "est.adhoc"
   
   

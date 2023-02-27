@@ -11,6 +11,57 @@ format:
 ```{r}
 #| echo: true
 
+infunc_confint <- function(ofit, wfit, est, exposurename, outcomename) {
+  
+  ofit <- glm(ofit$formula, family = ofit$family, 
+                 data = ofit$data)
+  
+  data <- ofit$data
+  phat <- predict(wfit, type = "response")
+  
+  data1 <- data0 <- data
+  data1[[exposurename]] <- 1
+  data0[[exposurename]] <- 0
+  
+  est1 <- predict(ofit, newdata = data1, type = "response")
+  est0 <- predict(ofit, newdata = data0, type = "response")
+  
+  
+  eifterms1 <- data[[exposurename]] / phat * 
+    (data[[outcomename]] - est1) + (est1 - mean(est1))
+  
+  eifterms0 <- (1 - data[[exposurename]]) / (1 - phat) * 
+    (data[[outcomename]] - est0) + (est0 - mean(est0))
+  
+  ifweight <- t(vcov(wfit) %*% t(sandwich::estfun(wfit)))
+  ifout <- t(vcov(ofit) %*% t(sandwich::estfun(ofit)))
+  
+  XXw <- model.matrix(wfit)
+  XXo <- model.matrix(ofit)
+  hdot <- XXw * family(wfit)$mu.eta(predict(wfit, type = "link"))
+  gdot0 <- model.matrix(terms(ofit), data = data0) * 
+    family(ofit)$mu.eta(predict(ofit, newdata = data0, type = "link"))
+  gdot1 <- model.matrix(terms(ofit), data = data1) * 
+    family(ofit)$mu.eta(predict(ofit, newdata = data1, type = "link"))
+  
+  fullif1 <- cbind(eifterms1, 
+              -diag((data[[exposurename]] * hdot / phat^2 * 
+                            (data[[outcomename]] - est1)) %*% t(ifweight)),
+              diag((gdot1 / phat * (phat - data[[exposurename]])) %*% t(ifout)))
+  
+  fullif0 <- cbind(eifterms0, 
+              diag(((1 - data[[exposurename]]) * hdot / (1 - phat)^2 * 
+                      (data[[outcomename]] - est0)) %*% t(ifweight)),
+              diag((gdot0 / (1 - phat) * (data[[exposurename]] - phat)) %*% t(ifout)))
+  
+  
+  estse <- sd(rowSums(fullif1) - rowSums(fullif0)) / sqrt(nrow(data))
+  
+  c(lower = est - 1.96 * estse, upper = est + 1.96 * estse)
+  
+  
+}
+
 data <- AF::clslowbwt
 head(data)
 ## propensity score fit
@@ -37,6 +88,7 @@ Yhat1 <- predict(outfit, newdata = data1, type = "response")
 
 ATEmean <- mean(Yhat1) - mean(Yhat0)
 ATEmean
+infunc_confint(outfit, pwfit, ATEmean, "smoker", "bwt")
 
 ## CAN Richard Funk?
 
@@ -72,9 +124,7 @@ set.seed(230221)
 bootATE <- rep(NA, 1000)
 for(i in 1:length(bootATE)) {
 ## sample ids
-  bids <- sample(unique(data$id), length(unique(data$id)), replace= TRUE)
-  datab <- do.call("rbind", 
-              lapply(bids, \(i) data[data$id == i,]))
+  datab <-data[sample(1:nrow(data), nrow(data), replace = TRUE), ]
 
 ## propensity score fit
 
@@ -135,6 +185,7 @@ Yhat1 <- predict(outfit, newdata = data1, type = "response")
 
 ATEmean <- mean(Yhat1) - mean(Yhat0)
 ATEmean
+infunc_confint(outfit, pwfit, ATEmean, "smoker", "lbw")
 
 RRmean <- mean(Yhat1) / mean(Yhat0)
 RRmean
@@ -159,6 +210,7 @@ dr0 <- data$lbw * (data$smoker == 0) / (1 - phat) +
 ATEfunk <- mean(dr1) - mean(dr0)  
 RRfunk <- mean(dr1) / mean(dr0)
 ATEfunk
+
 RRfunk
 
 ```
@@ -174,9 +226,7 @@ set.seed(230221)
 bootATE <- bootRR <- rep(NA, 1000)
 for(i in 1:length(bootATE)) {
   
-  bids <- sample(unique(data$id), length(unique(data$id)), replace= TRUE)
-  datab <- do.call("rbind", 
-              lapply(bids, \(i) data[data$id == i,]))
+   datab <-data[sample(1:nrow(data), nrow(data), replace = TRUE), ]
 
 ## propensity score fit
 

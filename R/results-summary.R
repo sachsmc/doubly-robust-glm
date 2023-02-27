@@ -35,4 +35,12 @@ results_table <- function(data) {
   
 }
 
-
+stddev_table <- function(data) {
+  
+  data <- data.table(data)
+  res <- data[, .(sd.glm = sd(est.adhoc), sd.funk = sd(est.funk)), keyby = .(sampsize, setting, type)] |> 
+    dcast(sampsize + type ~ setting, value.var = c("sd.glm", "sd.funk"))
+  res[, .(sampsize, type, sd.glm_linear, sd.funk_linear, sd.glm_logit_binomial, sd.funk_logit_binomial)]
+  
+  
+}
