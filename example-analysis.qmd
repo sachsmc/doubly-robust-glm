@@ -11,51 +11,62 @@ format:
 ```{r}
 #| echo: true
 
-infunc_confint <- function(ofit, wfit, est, exposurename, outcomename) {
+infunc_confint <- function(ofit, wfit, exposurename, outcomename) {
   
+  
+  data1 <- data0 <- ofit$data
+  data1[[exposurename]] <- 1
+  data0[[exposurename]] <- 0
+  
+  n <- nrow(data1)
+  
+  est1f <- mean(predict(ofit, newdata = data1, type = "response"))
+  est0f <- mean(predict(ofit, newdata = data0, type = "response"))
+  
+  # refit using unweighted eeqs
   ofit <- glm(ofit$formula, family = ofit$family, 
                  data = ofit$data)
   
   data <- ofit$data
   phat <- predict(wfit, type = "response")
-  
-  data1 <- data0 <- data
-  data1[[exposurename]] <- 1
-  data0[[exposurename]] <- 0
+ 
   
   est1 <- predict(ofit, newdata = data1, type = "response")
   est0 <- predict(ofit, newdata = data0, type = "response")
-  
-  
-  eifterms1 <- data[[exposurename]] / phat * 
-    (data[[outcomename]] - est1) + (est1 - mean(est1))
-  
-  eifterms0 <- (1 - data[[exposurename]]) / (1 - phat) * 
-    (data[[outcomename]] - est0) + (est0 - mean(est0))
+
+  XXw <- model.matrix(wfit)
+  XXo <- model.matrix(ofit)
   
   ifweight <- t(vcov(wfit) %*% t(sandwich::estfun(wfit)))
   ifout <- t(vcov(ofit) %*% t(sandwich::estfun(ofit)))
   
-  XXw <- model.matrix(wfit)
-  XXo <- model.matrix(ofit)
-  hdot <- XXw * family(wfit)$mu.eta(predict(wfit, type = "link"))
-  gdot0 <- model.matrix(terms(ofit), data = data0) * 
-    family(ofit)$mu.eta(predict(ofit, newdata = data0, type = "link"))
-  gdot1 <- model.matrix(terms(ofit), data = data1) * 
-    family(ofit)$mu.eta(predict(ofit, newdata = data1, type = "link"))
   
-  fullif1 <- cbind(eifterms1, 
-              -diag((data[[exposurename]] * hdot / phat^2 * 
-                            (data[[outcomename]] - est1)) %*% t(ifweight)),
-              diag((gdot1 / phat * (phat - data[[exposurename]])) %*% t(ifout)))
-  
-  fullif0 <- cbind(eifterms0, 
-              diag(((1 - data[[exposurename]]) * hdot / (1 - phat)^2 * 
-                      (data[[outcomename]] - est0)) %*% t(ifweight)),
-              diag((gdot0 / (1 - phat) * (data[[exposurename]] - phat)) %*% t(ifout)))
+  eifterms1 <- (data[[exposurename]] / phat * (data[[outcomename]] - est1) + (est1 - est1f)) / n
+  eifterms0 <- ((1 - data[[exposurename]]) / (1 - phat) * (data[[outcomename]] - est0) + (est0 - est0f)) / n
   
   
-  estse <- sd(rowSums(fullif1) - rowSums(fullif0)) / sqrt(nrow(data))
+  hdot <- family(wfit)$mu.eta(predict(wfit, type = "link"))
+  
+  gdot0 <- family(ofit)$mu.eta(predict(ofit, newdata = data0, type = "link"))
+  gdot1 <- family(ofit)$mu.eta(predict(ofit, newdata = data1, type = "link"))
+  
+  Kterm1 <- (-1/n) * matrix(((data[[exposurename]] * hdot) / phat^2) * (data[[outcomename]] - est1), nrow = 1, ncol = n) %*%
+    model.matrix(wfit)
+  Kterm0 <- (1/n) * matrix((((1 - data[[exposurename]]) * hdot) / (1 - phat)^2) * (data[[outcomename]] - est0), nrow = 1, ncol = n) %*%
+    model.matrix(wfit)
+  
+  Lterm1 <- (1/ n) * matrix(gdot1 * (1 - data[[exposurename]]/phat), nrow = 1, ncol = n) %*% 
+    model.matrix(ofit, data = data1)
+  
+  Lterm0 <- (1/ n) * matrix(gdot0 * ((1 - data[[exposurename]])/(1 - phat) - 1), nrow = 1, ncol = n) %*% 
+    model.matrix(ofit, data = data1)
+  
+  fullif1 <- cbind(eifterms1, (ifweight %*% t(Kterm1)), (ifout %*% t(Lterm1)))
+  fullif0 <- cbind(eifterms0, (ifweight %*% t(Kterm0)), (ifout %*% t(Lterm0)))
+  
+  
+  estse <- sqrt(sum((rowSums(fullif1) - rowSums(fullif0))^2))
+  est <- est1f - est0f
   
   c(lower = est - 1.96 * estse, upper = est + 1.96 * estse)
   
