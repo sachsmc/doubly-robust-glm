@@ -160,7 +160,7 @@ generate_logit_binomial <- function(n = 2000,coefZ = 2) {
   D <- rnorm(n, mean = 1)
   Z <- rbinom(n, 1, prob = plogis(.2*(-2 + 2 * C + 1.4 * C^2 + 2 * D)))
   
-  linpred <- -2 + coefZ * Z + 1 * C + 4 * D + 1 * D * Z
+  linpred <- -2 + coefZ * Z + 1 * C + 1 * C^2 + 4 * D
   meanparm <- plogis(linpred)
   
   Y <- rbinom(n, 1, meanparm)
@@ -176,7 +176,7 @@ truev_logit_binomial <- function(coefZ = 2) {
   C <- rnorm(n)
   D <- rnorm(n, mean = 1)
   
-  linpred <- plogis(-2 + coefZ + 1 * C + 4 * D + D) - plogis(-2 + 1 * C + 4 * D)
+  linpred <- plogis(-2 + coefZ + 1 * C + 1 * C^2 + 4 * D) - plogis(-2 + 1 * C + 1 * C^2 + 4 * D)
   
   mean(linpred)
   

@@ -188,7 +188,7 @@
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, breakable, interior hidden, enhanced, boxrule=0pt, frame hidden, sharp corners]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, sharp corners, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, breakable, frame hidden, interior hidden]}{\end{tcolorbox}}\fi
 
 \hypertarget{linear-model-smoking-is-the-exposure-birthweight-in-grams-the-outcome}{%
 \subsection{Linear model, smoking is the exposure, birthweight in grams
@@ -197,51 +197,66 @@ outcome}\label{linear-model-smoking-is-the-exposure-birthweight-in-grams-the-out
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{infunc\_confint }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(ofit, wfit, est, exposurename, outcomename) \{}
+\NormalTok{infunc\_confint }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(ofit, wfit, exposurename, outcomename) \{}
   
-\NormalTok{  ofit }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(ofit}\SpecialCharTok{$}\NormalTok{formula, }\AttributeTok{family =}\NormalTok{ ofit}\SpecialCharTok{$}\NormalTok{family, }
-                 \AttributeTok{data =}\NormalTok{ ofit}\SpecialCharTok{$}\NormalTok{data)}
   
 \NormalTok{  data }\OtherTok{\textless{}{-}}\NormalTok{ ofit}\SpecialCharTok{$}\NormalTok{data}
-\NormalTok{  phat }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(wfit, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
-  
 \NormalTok{  data1 }\OtherTok{\textless{}{-}}\NormalTok{ data0 }\OtherTok{\textless{}{-}}\NormalTok{ data}
 \NormalTok{  data1[[exposurename]] }\OtherTok{\textless{}{-}} \DecValTok{1}
 \NormalTok{  data0[[exposurename]] }\OtherTok{\textless{}{-}} \DecValTok{0}
   
-\NormalTok{  est1 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ofit, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
-\NormalTok{  est0 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ofit, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(data1)}
   
+\NormalTok{  est1f }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\FunctionTok{predict}\NormalTok{(ofit, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{))}
+\NormalTok{  est0f }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\FunctionTok{predict}\NormalTok{(ofit, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{))}
   
-\NormalTok{  eifterms1 }\OtherTok{\textless{}{-}}\NormalTok{ data[[exposurename]] }\SpecialCharTok{/}\NormalTok{ phat }\SpecialCharTok{*} 
-\NormalTok{    (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est1) }\SpecialCharTok{+}\NormalTok{ (est1 }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(est1))}
+  \CommentTok{\# refit using unweighted eeqs}
+\NormalTok{  ofitunwt }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(ofit}\SpecialCharTok{$}\NormalTok{formula, }\AttributeTok{family =}\NormalTok{ ofit}\SpecialCharTok{$}\NormalTok{family, }
+                 \AttributeTok{data =}\NormalTok{ data)}
+
+\NormalTok{  phat }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(wfit, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+ 
   
-\NormalTok{  eifterms0 }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ data[[exposurename]]) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{*} 
-\NormalTok{    (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est0) }\SpecialCharTok{+}\NormalTok{ (est0 }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(est0))}
+\NormalTok{  est1 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ofitunwt, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{  est0 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ofitunwt, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+
+\NormalTok{  XXw }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(wfit)}
+\NormalTok{  XXo }\OtherTok{\textless{}{-}}\NormalTok{ XXo1 }\OtherTok{\textless{}{-}}\NormalTok{ XXo0 }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(ofitunwt)}
+\NormalTok{  XXo1[,exposurename] }\OtherTok{\textless{}{-}} \DecValTok{1}
+\NormalTok{  XXo0[,exposurename] }\OtherTok{\textless{}{-}} \DecValTok{0}
   
 \NormalTok{  ifweight }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{vcov}\NormalTok{(wfit) }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(sandwich}\SpecialCharTok{::}\FunctionTok{estfun}\NormalTok{(wfit)))}
-\NormalTok{  ifout }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{vcov}\NormalTok{(ofit) }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(sandwich}\SpecialCharTok{::}\FunctionTok{estfun}\NormalTok{(ofit)))}
-  
-\NormalTok{  XXw }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(wfit)}
-\NormalTok{  XXo }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(ofit)}
-\NormalTok{  hdot }\OtherTok{\textless{}{-}}\NormalTok{ XXw }\SpecialCharTok{*} \FunctionTok{family}\NormalTok{(wfit)}\SpecialCharTok{$}\FunctionTok{mu.eta}\NormalTok{(}\FunctionTok{predict}\NormalTok{(wfit, }\AttributeTok{type =} \StringTok{"link"}\NormalTok{))}
-\NormalTok{  gdot0 }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(}\FunctionTok{terms}\NormalTok{(ofit), }\AttributeTok{data =}\NormalTok{ data0) }\SpecialCharTok{*} 
-    \FunctionTok{family}\NormalTok{(ofit)}\SpecialCharTok{$}\FunctionTok{mu.eta}\NormalTok{(}\FunctionTok{predict}\NormalTok{(ofit, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"link"}\NormalTok{))}
-\NormalTok{  gdot1 }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(}\FunctionTok{terms}\NormalTok{(ofit), }\AttributeTok{data =}\NormalTok{ data1) }\SpecialCharTok{*} 
-    \FunctionTok{family}\NormalTok{(ofit)}\SpecialCharTok{$}\FunctionTok{mu.eta}\NormalTok{(}\FunctionTok{predict}\NormalTok{(ofit, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"link"}\NormalTok{))}
-  
-\NormalTok{  fullif1 }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(eifterms1, }
-              \SpecialCharTok{{-}}\FunctionTok{diag}\NormalTok{((data[[exposurename]] }\SpecialCharTok{*}\NormalTok{ hdot }\SpecialCharTok{/}\NormalTok{ phat}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{*} 
-\NormalTok{                            (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est1)) }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(ifweight)),}
-              \FunctionTok{diag}\NormalTok{((gdot1 }\SpecialCharTok{/}\NormalTok{ phat }\SpecialCharTok{*}\NormalTok{ (phat }\SpecialCharTok{{-}}\NormalTok{ data[[exposurename]])) }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(ifout)))}
-  
-\NormalTok{  fullif0 }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(eifterms0, }
-              \FunctionTok{diag}\NormalTok{(((}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ data[[exposurename]]) }\SpecialCharTok{*}\NormalTok{ hdot }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat)}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{*} 
-\NormalTok{                      (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est0)) }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(ifweight)),}
-              \FunctionTok{diag}\NormalTok{((gdot0 }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{*}\NormalTok{ (data[[exposurename]] }\SpecialCharTok{{-}}\NormalTok{ phat)) }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(ifout)))}
+\NormalTok{  ifout }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{vcov}\NormalTok{(ofit) }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(sandwich}\SpecialCharTok{::}\FunctionTok{estfun}\NormalTok{(ofitunwt)))}
   
   
-\NormalTok{  estse }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(}\FunctionTok{rowSums}\NormalTok{(fullif1) }\SpecialCharTok{{-}} \FunctionTok{rowSums}\NormalTok{(fullif0)) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(data))}
+\NormalTok{  eifterms1 }\OtherTok{\textless{}{-}}\NormalTok{ (data[[exposurename]] }\SpecialCharTok{/}\NormalTok{ phat }\SpecialCharTok{*}\NormalTok{ (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est1) }\SpecialCharTok{+}\NormalTok{ (est1 }\SpecialCharTok{{-}}\NormalTok{ est1f)) }\SpecialCharTok{/}\NormalTok{ n}
+\NormalTok{  eifterms0 }\OtherTok{\textless{}{-}}\NormalTok{ ((}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ data[[exposurename]]) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{*}\NormalTok{ (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est0) }\SpecialCharTok{+}\NormalTok{ (est0 }\SpecialCharTok{{-}}\NormalTok{ est0f)) }\SpecialCharTok{/}\NormalTok{ n}
+  
+  
+\NormalTok{  hdot }\OtherTok{\textless{}{-}} \FunctionTok{family}\NormalTok{(wfit)}\SpecialCharTok{$}\FunctionTok{mu.eta}\NormalTok{(}\FunctionTok{predict}\NormalTok{(wfit, }\AttributeTok{type =} \StringTok{"link"}\NormalTok{))}
+  
+\NormalTok{  gdot0 }\OtherTok{\textless{}{-}} \FunctionTok{family}\NormalTok{(ofit)}\SpecialCharTok{$}\FunctionTok{mu.eta}\NormalTok{(}\FunctionTok{predict}\NormalTok{(ofitunwt, }\AttributeTok{newdata =}\NormalTok{ data0, }\AttributeTok{type =} \StringTok{"link"}\NormalTok{))}
+\NormalTok{  gdot1 }\OtherTok{\textless{}{-}} \FunctionTok{family}\NormalTok{(ofit)}\SpecialCharTok{$}\FunctionTok{mu.eta}\NormalTok{(}\FunctionTok{predict}\NormalTok{(ofitunwt, }\AttributeTok{newdata =}\NormalTok{ data1, }\AttributeTok{type =} \StringTok{"link"}\NormalTok{))}
+  
+\NormalTok{  Kterm1 }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{1}\SpecialCharTok{/}\NormalTok{n) }\SpecialCharTok{*} \FunctionTok{matrix}\NormalTok{(((data[[exposurename]] }\SpecialCharTok{*}\NormalTok{ hdot) }\SpecialCharTok{/}\NormalTok{ phat}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{*} 
+\NormalTok{                              (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est1), }\AttributeTok{nrow =} \DecValTok{1}\NormalTok{, }\AttributeTok{ncol =}\NormalTok{ n) }\SpecialCharTok{\%*\%}
+\NormalTok{    XXw}
+\NormalTok{  Kterm0 }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{/}\NormalTok{n) }\SpecialCharTok{*} \FunctionTok{matrix}\NormalTok{((((}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ data[[exposurename]]) }\SpecialCharTok{*}\NormalTok{ hdot) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{*} 
+\NormalTok{                             (data[[outcomename]] }\SpecialCharTok{{-}}\NormalTok{ est0), }\AttributeTok{nrow =} \DecValTok{1}\NormalTok{, }\AttributeTok{ncol =}\NormalTok{ n) }\SpecialCharTok{\%*\%}
+\NormalTok{    XXw}
+  
+\NormalTok{  Lterm1 }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{/}\NormalTok{ n) }\SpecialCharTok{*} \FunctionTok{matrix}\NormalTok{(gdot1 }\SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ data[[exposurename]]}\SpecialCharTok{/}\NormalTok{phat), }\AttributeTok{nrow =} \DecValTok{1}\NormalTok{, }\AttributeTok{ncol =}\NormalTok{ n) }\SpecialCharTok{\%*\%} 
+\NormalTok{    XXo1}
+  
+\NormalTok{  Lterm0 }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{/}\NormalTok{ n) }\SpecialCharTok{*} \FunctionTok{matrix}\NormalTok{(gdot0 }\SpecialCharTok{*}\NormalTok{ ((}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ data[[exposurename]])}\SpecialCharTok{/}\NormalTok{(}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ phat) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{), }\AttributeTok{nrow =} \DecValTok{1}\NormalTok{, }\AttributeTok{ncol =}\NormalTok{ n) }\SpecialCharTok{\%*\%} 
+\NormalTok{    XXo0}
+  
+\NormalTok{  fullif1 }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(eifterms1, (ifweight }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(Kterm1)), (ifout }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(Lterm1)))}
+\NormalTok{  fullif0 }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(eifterms0, (ifweight }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(Kterm0)), (ifout }\SpecialCharTok{\%*\%} \FunctionTok{t}\NormalTok{(Lterm0)))}
+  
+  
+\NormalTok{  estse }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{sum}\NormalTok{((}\FunctionTok{rowSums}\NormalTok{(fullif1) }\SpecialCharTok{{-}} \FunctionTok{rowSums}\NormalTok{(fullif0))}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))}
+\NormalTok{  est }\OtherTok{\textless{}{-}}\NormalTok{ est1f }\SpecialCharTok{{-}}\NormalTok{ est0f}
   
   \FunctionTok{c}\NormalTok{(}\AttributeTok{lower =}\NormalTok{ est }\SpecialCharTok{{-}} \FloatTok{1.96} \SpecialCharTok{*}\NormalTok{ estse, }\AttributeTok{upper =}\NormalTok{ est }\SpecialCharTok{+} \FloatTok{1.96} \SpecialCharTok{*}\NormalTok{ estse)}
   
@@ -298,13 +313,13 @@ outcome}\label{linear-model-smoking-is-the-exposure-birthweight-in-grams-the-out
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{infunc\_confint}\NormalTok{(outfit, pwfit, ATEmean, }\StringTok{"smoker"}\NormalTok{, }\StringTok{"bwt"}\NormalTok{)}
+\FunctionTok{infunc\_confint}\NormalTok{(outfit, pwfit, }\StringTok{"smoker"}\NormalTok{, }\StringTok{"bwt"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-     lower      upper 
--365.07104  -82.27607 
+      lower       upper 
+-446.081852   -1.265258 
 \end{verbatim}
 
 \begin{Shaded}
@@ -391,13 +406,13 @@ Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{infunc\_confint}\NormalTok{(outfit, pwfit, ATEmean, }\StringTok{"smoker"}\NormalTok{, }\StringTok{"lbw"}\NormalTok{)}
+\FunctionTok{infunc\_confint}\NormalTok{(outfit, pwfit, }\StringTok{"smoker"}\NormalTok{, }\StringTok{"lbw"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-     lower      upper 
-0.04285596 0.22700794 
+       lower        upper 
+0.0009662041 0.2688977028 
 \end{verbatim}
 
 \begin{Shaded}

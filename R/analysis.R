@@ -81,8 +81,9 @@ analyze_ols_weighted <- function(data, nboot = 1000) {
   fit10 <- glm(Y ~ Z + C, data = data, weights = W1)
   fit20 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W2)
   fit30 <- glm(Y ~ Z + C, data = data, weights = W2)
+  fit40 <- glm(Y ~ Z + C + I(C^2) + D, data = data, weights = W1)
   
-  bootb <- matrix(NA, ncol = 3, nrow = nboot)
+  bootb <- matrix(NA, ncol = 4, nrow = nboot)
   for(i in 1:nrow(bootb)) {
     datab <- data[sample(1:nrow(data), nrow(data), replace = TRUE),]
     
@@ -98,23 +99,25 @@ analyze_ols_weighted <- function(data, nboot = 1000) {
     fit1 <- lm(Y ~ Z + C, data = datab, weights = W1)
     fit2 <- lm(Y ~ Z + C + I(C^2) + D, data = datab, weights = W2)
     fit3 <- lm(Y ~ Z + C, data = datab, weights = W2)
-    bootb[i, ] <- sapply(list(fit1, fit2, fit3), \(x) x$coefficients[2])
+    fit4 <- glm(Y ~ Z + C + I(C^2) + D, data = datab, weights = W1)
+    
+    bootb[i, ] <- sapply(list(fit1, fit2, fit3, fit4), \(x) x$coefficients[2])
   }
   
   bootci <- apply(bootb, 2, quantile, c(.025, .975))
   
-  infcis <- sapply(list(list(fit10, zmod1), list(fit20, zmod2), list(fit30, zmod2)), 
-  \(lp) infunc_confint(lp[[1]], lp[[2]], lp[[1]]$coefficients[2]))
+  infcis <- sapply(list(list(fit10, zmod1), list(fit20, zmod2), list(fit30, zmod2), list(fit40, zmod1)), 
+  \(lp) infunc_confint(lp[[1]], lp[[2]]))
   
   
-  data.frame(est = c(coefficients(fit10)[2], coefficients(fit20)[2], coefficients(fit30)[2]), 
-             lowerCL.acm = sapply(list(fit10, fit20, fit30),\(x) confint(x)[2, 1]), 
-             upperCL.acm = sapply(list(fit10, fit20, fit30),\(x) confint(x)[2, 2]),
+  data.frame(est = c(coefficients(fit10)[2], coefficients(fit20)[2], coefficients(fit30)[2], coefficients(fit40)[2]), 
+             lowerCL.acm = sapply(list(fit10, fit20, fit30, fit40),\(x) confint(x)[2, 1]), 
+             upperCL.acm = sapply(list(fit10, fit20, fit30, fit40),\(x) confint(x)[2, 2]),
              lowerCL.boot = bootci[1, ], 
              upperCL.boot = bootci[2, ],
              lowerCL.infl = infcis[1, ],
              upperCL.infl = infcis[2, ],
-             type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both"))
+             type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both"))
   
 }
 
@@ -149,7 +152,7 @@ stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = T
   }
   
   bootci <- quantile(bootests, c(.025, .975))
-  inflci <- infunc_confint(ofit, wfit, mainest[1])
+  inflci <- infunc_confint(reofit0, rewfit0)
   
   res <- c(mainest, bootci, inflci)
   names(res) <- c("est", "lowerCL.acm", "upperCL.acm", "lowerCL.boot", "upperCL.boot", 
@@ -167,9 +170,11 @@ analyze_ols_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "gaussian"), 
                   glm(Z ~ C, data = data, family = binomial)), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = "gaussian"), 
-                  glm(Z ~ C, data = data, family = binomial))
+                  glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "gaussian"), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial))
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
   
 }
@@ -196,9 +201,11 @@ analyze_poisson_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "poisson"), 
             glm(Z ~ C, data = data, family = binomial)), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = "poisson"), 
-            glm(Z ~ C, data = data, family = binomial))
+            glm(Z ~ C, data = data, family = binomial)),
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2)+ D, data = data, family = "poisson"), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial))
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
   
 }
@@ -212,9 +219,11 @@ analyze_inverse_gaussian_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "inverse.gaussian"), 
             glm(Z ~ C, data = data, family = binomial)), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = "inverse.gaussian"), 
-            glm(Z ~ C, data = data, family = binomial))
+            glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = "inverse.gaussian"), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial))
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
   
 }
@@ -232,9 +241,11 @@ analyze_log_binomial_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0, 0, 0)), 
             glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0, 0, 0), nboot = 1), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0)), 
-            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1)
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1),
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0)), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1) 
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
   
    
@@ -252,9 +263,11 @@ analyze_identity_binomial_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "identity")), 
             glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0.1, 0, 0, 0)), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "identity")), 
-            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0.1, 0))
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0.1, 0)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "identity")), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0.1, 0)) 
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
   
 }
@@ -269,9 +282,11 @@ analyze_logit_binomial_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial), 
             glm(Z ~ C, data = data, family = binomial)), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial), 
-            glm(Z ~ C, data = data, family = binomial))
+            glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
   
 }
@@ -286,9 +301,11 @@ analyze_probit_binomial_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "probit")), 
             glm(Z ~ C, data = data, family = binomial)), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "probit")), 
-            glm(Z ~ C, data = data, family = binomial))
+            glm(Z ~ C, data = data, family = binomial)), 
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "probit")), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
   
   
@@ -336,18 +353,20 @@ analyze_linear_compare <- function(data) {
   res <- rbind.data.frame(
     stdGlm2(data, wofit, cwfit, nboot = 1), 
     stdGlm2(data, cofit, wwfit, nboot = 1), 
-    stdGlm2(data, wofit, wwfit, nboot = 1)
+    stdGlm2(data, wofit, wwfit, nboot = 1), 
+    stdGlm2(data, cofit, cwfit, nboot = 1)
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res$lowerCL.acm <- res$upperCL.acm <- res$lowerCL.boot <- res$upperCL.boot <- NULL
   colnames(res)[1] <- "est.adhoc"
   
   res2 <- rbind.data.frame(
     stdGlm2(data, wofit, cwfit, nboot = 1, noweights = FALSE), 
     stdGlm2(data, cofit, wwfit, nboot = 1, noweights = FALSE), 
-    stdGlm2(data, wofit, wwfit, nboot = 1, noweights = FALSE)
+    stdGlm2(data, wofit, wwfit, nboot = 1, noweights = FALSE), 
+    stdGlm2(data, cofit, cwfit, nboot = 1, noweights = FALSE)
   )
-  res2$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res2$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res2$lowerCL.acm <- res2$upperCL.acm <- res2$lowerCL.boot <- res2$upperCL.boot <- NULL
   colnames(res2)[1] <- "est.wtd"
   
@@ -356,7 +375,8 @@ analyze_linear_compare <- function(data) {
   res$est.funk <- c(
     funk_estimate(data, wofit, wofit, cwfit), 
     funk_estimate(data, cofit, cofit, wwfit), 
-    funk_estimate(data, wofit, wofit, wwfit))
+    funk_estimate(data, wofit, wofit, wwfit), 
+    funk_estimate(data, cofit, cofit, cwfit))
   res
   
 }
@@ -379,9 +399,10 @@ analyze_logit_compare <- function(data) {
   res <- rbind.data.frame(
     stdGlm2(data, wofit, cwfit, nboot = 1), 
     stdGlm2(data, cofit, wwfit, nboot = 1), 
-    stdGlm2(data, wofit, wwfit, nboot = 1)
+    stdGlm2(data, wofit, wwfit, nboot = 1), 
+    stdGlm2(data, cofit, cwfit, nboot = 1)
   )
-  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res$lowerCL.acm <- res$upperCL.acm <- res$lowerCL.boot <- res$upperCL.boot <- 
     res$lowerCL.infl <- res$upperCL.infl <- NULL
   colnames(res)[1] <- "est.adhoc"
@@ -390,9 +411,10 @@ analyze_logit_compare <- function(data) {
   res2 <- rbind.data.frame(
     stdGlm2(data, wofit, cwfit, nboot = 1, noweights = FALSE), 
     stdGlm2(data, cofit, wwfit, nboot = 1, noweights = FALSE), 
-    stdGlm2(data, wofit, wwfit, nboot = 1, noweights = FALSE)
+    stdGlm2(data, wofit, wwfit, nboot = 1, noweights = FALSE),
+    stdGlm2(dtaa, cofit, cwfit, nboot = 1, noweights = FALSE)
   )
-  res2$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both")
+  res2$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res2$lowerCL.acm <- res2$upperCL.acm <- res2$lowerCL.boot <- res2$upperCL.boot <- NULL
   colnames(res2)[1] <- "est.wtd"
   
@@ -400,12 +422,14 @@ analyze_logit_compare <- function(data) {
   
   res$est.funk <- c(funk_estimate(data, wofit, wofit, cwfit), 
                     funk_estimate(data, cofit, cofit, wwfit), 
-                    funk_estimate(data, wofit, wofit, wwfit))
+                    funk_estimate(data, wofit, wofit, wwfit), 
+                    funk_estimate(data, cofit, cofit, cwfit))
   
   res$est.funk.wtd <- c(
     funk_estimate(data, wofit, wofit, cwfit, weight = TRUE), 
     funk_estimate(data, cofit, cofit, wwfit, weight = TRUE), 
-    funk_estimate(data, wofit, wofit, wwfit, weight = TRUE))
+    funk_estimate(data, wofit, wofit, wwfit, weight = TRUE), 
+    funk_estimate(data, cofit, cofit, cwfit, weight = TRUE))
   res
   }, error = function(e) {
     data.frame(est.adhoc = NA, type = "failed", est.wtd = NA, est.funk = NA, est.funk.wtd = NA)
