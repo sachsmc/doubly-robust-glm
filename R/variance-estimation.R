@@ -60,7 +60,7 @@ infunc_confint <- function(ofit, wfit) {
   estse <- sqrt(sum((rowSums(fullif1) - rowSums(fullif0))^2))
   est <- est1f - est0f
   
-  c(lower = est - 1.96 * estse, upper = est + 1.96 * estse)
+  c(lower = est - 1.96 * estse, upper = est + 1.96 * estse, se.eif = sqrt(sum((eifterms1 - eifterms0)^2)), se = estse)
   
   
 }

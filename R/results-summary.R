@@ -26,6 +26,7 @@ results_table <- function(data) {
   data[, in_ci.infl := true_value >= lowerCL.infl & true_value <= upperCL.infl]
   data[type != "failed", .(mean_bias = round(mean(est - true_value),4), 
                                      sd_bias = sd(est - true_value), 
+                           infl_se = mean(se.infl), 
                            cover_pct.acm = 100 * mean(in_ci.acm), 
                            cover_pct.boot = 100 * mean(in_ci.boot),
                            cover_pct.infl = 100 * mean(in_ci.infl)
@@ -41,6 +42,19 @@ stddev_table <- function(data) {
   res <- data[, .(sd.glm = sd(est.adhoc), sd.funk = sd(est.funk)), keyby = .(sampsize, setting, type)] |> 
     dcast(sampsize + type ~ setting, value.var = c("sd.glm", "sd.funk"))
   res[, .(sampsize, type, sd.glm_linear, sd.funk_linear, sd.glm_logit_binomial, sd.funk_logit_binomial)]
+  
+  
+}
+
+
+
+eif_table <- function(data) {
+  
+  data <- data.table(data)
+  data[type != "failed", .(emp.se = sd(est), 
+                           eif.se = mean(se.eif), 
+                           infl.se = mean(se.infl)), 
+       by = .(setting, analysis, type)]
   
   
 }

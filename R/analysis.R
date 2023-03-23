@@ -38,6 +38,8 @@ run_simulation <- function(generation, analysis, coefZ, n = 2000) {
     tryCatch(analyze_data(datin), error = function(e) data.frame(est = NA, lowerCL.acm = NA, 
                                                                  upperCL.acm = NA, lowerCL.boot = NA, upperCL.boot = NA, 
                                                                  lowerCL.infl = NA, upperCL.infl = NA, 
+                                                                 se.eif = NA,
+                                                                 se.infl = NA,
                                                                  type = "failed"))
     
   }, mc.cores = cores))
@@ -65,7 +67,7 @@ analyze_ols <- function(data) {
   
 }
 
-analyze_ols_weighted <- function(data, nboot = 1000) {
+analyze_ols_weighted <- function(data, nboot = 1) {
   
   
   zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
@@ -117,12 +119,14 @@ analyze_ols_weighted <- function(data, nboot = 1000) {
              upperCL.boot = bootci[2, ],
              lowerCL.infl = infcis[1, ],
              upperCL.infl = infcis[2, ],
+             se.eif = infcis[3,],
+             se.infl = infcis[4,],
              type = c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both"))
   
 }
 
 
-stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = TRUE) {
+stdGlm2 <- function(data, ofit, wfit, nboot = 1, ostart = NULL, noweights = TRUE) {
   
   rewfit0 <- glm(wfit$formula, family = wfit$family, data = data)
   phat <- predict(rewfit0, type = "response")
@@ -156,7 +160,7 @@ stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = T
   
   res <- c(mainest, bootci, inflci)
   names(res) <- c("est", "lowerCL.acm", "upperCL.acm", "lowerCL.boot", "upperCL.boot", 
-                  "lowerCL.infl", "upperCL.infl")
+                  "lowerCL.infl", "upperCL.infl", "se.eif", "se.infl")
   
   as.data.frame(as.list(res))
   
@@ -284,7 +288,7 @@ analyze_logit_binomial_weighted_standardized <- function(data) {
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial), 
             glm(Z ~ C, data = data, family = binomial)), 
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial), 
-            glm(Z ~ C + I(C^2) + D, data = data, family = binomial)), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial))
   )
   res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res
@@ -357,7 +361,10 @@ analyze_linear_compare <- function(data) {
     stdGlm2(data, cofit, cwfit, nboot = 1)
   )
   res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
-  res$lowerCL.acm <- res$upperCL.acm <- res$lowerCL.boot <- res$upperCL.boot <- NULL
+  res$lowerCL.acm <- res$upperCL.acm <- 
+    res$lowerCL.boot <- res$upperCL.boot <- 
+    res$lowerCL.infl <- res$upperCL.infl <- res$se.infl <-
+    NULL
   colnames(res)[1] <- "est.adhoc"
   
   res2 <- rbind.data.frame(
@@ -367,7 +374,9 @@ analyze_linear_compare <- function(data) {
     stdGlm2(data, cofit, cwfit, nboot = 1, noweights = FALSE)
   )
   res2$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
-  res2$lowerCL.acm <- res2$upperCL.acm <- res2$lowerCL.boot <- res2$upperCL.boot <- NULL
+  res2$lowerCL.acm <- res2$upperCL.acm <- 
+    res2$lowerCL.boot <- res2$upperCL.boot <-
+    res$lowerCL.infl <- res$upperCL.infl <-  res$se.infl <-NULL
   colnames(res2)[1] <- "est.wtd"
   
   res$est.wtd <- res2$est.wtd
@@ -404,7 +413,7 @@ analyze_logit_compare <- function(data) {
   )
   res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res$lowerCL.acm <- res$upperCL.acm <- res$lowerCL.boot <- res$upperCL.boot <- 
-    res$lowerCL.infl <- res$upperCL.infl <- NULL
+    res$lowerCL.infl <- res$upperCL.infl <-  res$se.infl <-NULL
   colnames(res)[1] <- "est.adhoc"
   
   
@@ -415,7 +424,9 @@ analyze_logit_compare <- function(data) {
     stdGlm2(dtaa, cofit, cwfit, nboot = 1, noweights = FALSE)
   )
   res2$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
-  res2$lowerCL.acm <- res2$upperCL.acm <- res2$lowerCL.boot <- res2$upperCL.boot <- NULL
+  res2$lowerCL.acm <- res2$upperCL.acm <- 
+    res2$lowerCL.boot <- res2$upperCL.boot <- 
+    res2$lowerCL.infl <- res$upperCL.infl <-  res$se.infl <-NULL
   colnames(res2)[1] <- "est.wtd"
   
   res$est.wtd <- res2$est.wtd
