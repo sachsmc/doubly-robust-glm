@@ -67,7 +67,7 @@ analyze_ols <- function(data) {
   
 }
 
-analyze_ols_weighted <- function(data, nboot = 1) {
+analyze_ols_weighted <- function(data, nboot = 1000) {
   
   
   zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
@@ -126,7 +126,7 @@ analyze_ols_weighted <- function(data, nboot = 1) {
 }
 
 
-stdGlm2 <- function(data, ofit, wfit, nboot = 1, ostart = NULL, noweights = TRUE) {
+stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = TRUE) {
   
   rewfit0 <- glm(wfit$formula, family = wfit$family, data = data)
   phat <- predict(rewfit0, type = "response")

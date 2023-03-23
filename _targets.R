@@ -36,7 +36,7 @@ settings <-  data.frame(
     coefZ = c(2, 2,2,2, 200, 20, 2,5,2, 5,2,5,2,5, 2)
   )
   
-settings <- settings[2:5,]
+
 target_runs <- tar_map(settings, 
         tar_target(simulate, run_simulation(generation, analysis, coefZ, n))
         )
@@ -58,5 +58,5 @@ tables <- list(
   
 )
 
-c(target_runs, combined_runs, tables[c(1,4)])
+c(target_runs, combined_runs, tables)
 
