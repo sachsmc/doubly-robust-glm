@@ -8,8 +8,9 @@ source("R/results-summary.R")
 source("R/variance-estimation.R")
 
 
-B <- 2000  ## number of simulation replicates
+B <- 20  ## number of simulation replicates
 cores <- 10 ## number of cpus to use
+boots <- 20 ## number of bootstrap replicates
 
 ## add log binomial, linear with binary outcome, poisson with binary outcome
 

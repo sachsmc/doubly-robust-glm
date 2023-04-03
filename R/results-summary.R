@@ -26,6 +26,7 @@ results_table <- function(data) {
   data[, in_ci.infl := true_value >= lowerCL.infl & true_value <= upperCL.infl]
   data[type != "failed", .(mean_bias = round(mean(est - true_value),4), 
                                      sd_bias = sd(est - true_value), 
+                           percent_bias = 100 * mean(est - true_value) / mean(true_value), 
                            infl_se = mean(se.infl), 
                            cover_pct.acm = 100 * mean(in_ci.acm), 
                            cover_pct.boot = 100 * mean(in_ci.boot),

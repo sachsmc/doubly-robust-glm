@@ -107,20 +107,17 @@ infunc_confint(outfit, pwfit, "smoker", "bwt")
 
 ## CAN Richard Funk?
 
-## separate outcome models, unweighted
+## single outcome model, unweighted
 
-ofit1 <- glm(bwt ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
-              data = subset(data, smoker == 1), family = "gaussian")
-
-ofit0 <- glm(bwt ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
-              data = subset(data, smoker == 0), family = "gaussian")
+outfit.unwt <- glm(bwt ~ smoker * (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = data, family = "gaussian")
 
 
 dr1 <- data$bwt * (data$smoker == 1) / phat - 
-  predict(ofit1, newdata = data1, type = "response") * 
+  predict(outfit.unwt, newdata = data1, type = "response") * 
   ((data$smoker == 1) - phat) / phat
 dr0 <- data$bwt * (data$smoker == 0) / (1 - phat) + 
-  predict(ofit0, newdata = data0, type = "response") * 
+  predict(outfit.unwt, newdata = data0, type = "response") * 
   ((data$smoker == 1) - phat) / (1 - phat)
 
 ATEfunk <- mean(dr1) - mean(dr0)  
@@ -208,18 +205,15 @@ RRmean
 
 ## separate outcome models, unweighted
 
-ofit1 <- glm(lbw ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
-              data = subset(data, smoker == 1), family = "binomial")
-
-ofit0 <- glm(lbw ~ (race + age + lwt) + I(age^2) + I(lwt^2), 
-              data = subset(data, smoker == 0), family = "binomial")
+outfit.unwt <- glm(lbw ~ smoker * (race + age + lwt) + I(age^2) + I(lwt^2), 
+              data = data, family = "binomial")
 
 
 dr1 <- data$lbw * (data$smoker == 1) / phat - 
-  predict(ofit1, newdata = data1, type = "response") * 
+  predict(outfit.unwt, newdata = data1, type = "response") * 
   ((data$smoker == 1) - phat) / phat
 dr0 <- data$lbw * (data$smoker == 0) / (1 - phat) + 
-  predict(ofit0, newdata = data0, type = "response") * 
+  predict(outfit.unwt, newdata = data0, type = "response") * 
   ((data$smoker == 1) - phat) / (1 - phat)
 
 ATEfunk <- mean(dr1) - mean(dr0)  

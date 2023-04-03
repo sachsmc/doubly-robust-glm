@@ -67,7 +67,7 @@ analyze_ols <- function(data) {
   
 }
 
-analyze_ols_weighted <- function(data, nboot = 1000) {
+analyze_ols_weighted <- function(data, nboot = boots) {
   
   
   zmod1 <- glm(Z ~ C + I(C^2) + D, data = data, family = binomial)
@@ -126,7 +126,7 @@ analyze_ols_weighted <- function(data, nboot = 1000) {
 }
 
 
-stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = TRUE) {
+stdGlm2 <- function(data, ofit, wfit, nboot = boots, ostart = NULL, noweights = TRUE) {
   
   rewfit0 <- glm(wfit$formula, family = wfit$family, data = data)
   phat <- predict(rewfit0, type = "response")
@@ -142,12 +142,14 @@ stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = T
   bootests <- rep(NA, nboot) 
   for(i in 1:nboot) {
     
+    thisstart <- if(!is.null(ostart)) ostart else reofit0$coefficients
+    
     bdata <- data[sample(1:nrow(data), nrow(data), replace = TRUE),]
     rewfit <- glm(wfit$formula, family = wfit$family, data = bdata, 
                   start = rewfit0$coefficients, x = FALSE, y = FALSE)
     phat <- predict(rewfit, type = "response")
     bdata$ww <- bdata$Z / phat + (1 - bdata$Z) / (1 - phat)
-    reofit <- glm(ofit$formula, family = ofit$family, weights = ww, data = bdata, start = reofit0$coefficients, 
+    reofit <- glm(ofit$formula, family = ofit$family, weights = ww, data = bdata, start = thisstart, 
                   x = FALSE, y = FALSE)
     
     reofit$prior.weights <- rep(1, length(reofit$prior.weights))
@@ -156,7 +158,7 @@ stdGlm2 <- function(data, ofit, wfit, nboot = 1000, ostart = NULL, noweights = T
   }
   
   bootci <- quantile(bootests, c(.025, .975))
-  inflci <- infunc_confint(reofit0, rewfit0)
+  inflci <- infunc_confint(reofit0, rewfit0, start = ostart)
   
   res <- c(mainest, bootci, inflci)
   names(res) <- c("est", "lowerCL.acm", "upperCL.acm", "lowerCL.boot", "upperCL.boot", 
@@ -241,13 +243,13 @@ analyze_log_binomial_weighted_standardized <- function(data) {
   
   res <- rbind.data.frame(
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0)), 
-            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = boots), 
     stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0, 0, 0)), 
-            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0, 0, 0), nboot = 1), 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0, 0, 0), nboot = boots), 
     stdGlm2(data, glm(Y ~ Z + C, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0)), 
-            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1),
-    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0)), 
-            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = 1) 
+            glm(Z ~ C, data = data, family = binomial), ostart = c(lmeanY, 0, 0), nboot = boots),
+    stdGlm2(data, glm(Y ~ Z + C + I(C^2) + D, data = data, family = binomial(link = "log"), start = c(lmeanY, 0, 0, 0, 0)), 
+            glm(Z ~ C + I(C^2) + D, data = data, family = binomial), ostart = c(lmeanY, 0, 0, 0, 0), nboot = boots) 
   )
   res$type <- c("wrong outcome right weights", "right outcome wrong weights", "wrong both", "right both")
   res

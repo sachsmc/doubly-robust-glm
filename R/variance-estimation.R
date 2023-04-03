@@ -1,7 +1,7 @@
 ## variance estimation, 
 ## start with only the first term E(Y | X = 1)
 
-infunc_confint <- function(ofit, wfit) {
+infunc_confint <- function(ofit, wfit, start = NULL) {
   
   
   data <- ofit$data
@@ -16,7 +16,7 @@ infunc_confint <- function(ofit, wfit) {
   
   # refit using unweighted eeqs
   ofitunwt <- glm(ofit$formula, family = ofit$family, 
-                 data = data)
+                 data = data, start = start)
 
   phat <- predict(wfit, type = "response")
  
