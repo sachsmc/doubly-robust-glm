@@ -30,7 +30,7 @@ infunc_confint <- function(ofit, wfit, start = NULL) {
   XXo0[,"Z"] <- 0
   
   ifweight <- t(vcov(wfit) %*% t(sandwich::estfun(wfit)))
-  ifout <- t(vcov(ofit) %*% t(sandwich::estfun(ofitunwt)))
+  ifout <- t(vcov(ofitunwt) %*% t(sandwich::estfun(ofitunwt)))
   
   
   eifterms1 <- (data$Z / phat * (data$Y - est1) + (est1 - est1f)) / n
